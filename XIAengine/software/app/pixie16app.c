@@ -1553,8 +1553,8 @@ PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16UpdateStatistics ()
 {
 
     unsigned int Statistics[N_DSP_PAR - DSP_IO_BORDER];
-    int Res;
-    for (int ModNum = 0 ; ModNum < Number_Modules ; ++ModNum){
+    int Res, ModNum, ChanNum;
+    for (ModNum = 0 ; ModNum < Number_Modules ; ++ModNum){
         Res = Pixie16ReadStatisticsFromModule(Statistics, ModNum);
 
         if ( Res < 0 )
@@ -1569,7 +1569,7 @@ PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16UpdateStatistics ()
         Module_Statistics[ModNum].real_time = tmp << 32;
         Module_Statistics[ModNum].real_time |= Statistics[RunTimeB_Address[ModNum] - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
 
-        for (int ChanNum = 0 ; ChanNum < NUMBER_OF_CHANNELS ; ++ChanNum){
+        for (ChanNum = 0 ; ChanNum < NUMBER_OF_CHANNELS ; ++ChanNum){
             tmp = Statistics[LiveTimeA_Address[ModNum] + ChanNum - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
             Module_Statistics[ModNum].live_time[ChanNum] = tmp << 32;
             Module_Statistics[ModNum].live_time[ChanNum] |= Statistics[LiveTimeB_Address[ModNum] + ChanNum - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
