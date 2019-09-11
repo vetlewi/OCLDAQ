@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(XIAengine)
+project(OCLDAQ)
 
 set(CMAKE_CXX_STANDARD 11)
 add_definitions(-D_FILE_OFFSET_BITS=64)
@@ -37,8 +37,10 @@ add_subdirectory(software/sys)
 add_subdirectory(software/plx)
 
 add_executable(XIAengine ${XIAengine_src})
+
 if ( Qt5_FOUND )
-    target_link_libraries(XIAengine Pixie16App Pixie16Sys Plx sirius ${QT_LIBRARY_DIR})
+    target_link_libraries(XIAengine Pixie16App Pixie16Sys Plx sirius ${QT_LIBRARY_DIR} dl)
+    target_link_options(XIAengine -ldl)
 else()
-    target_link_libraries(XIAengine Pixie16App Pixie16Sys Plx sirius)
+    target_link_libraries(XIAengine Pixie16App Pixie16Sys Plx sirius dl)
 endif()
