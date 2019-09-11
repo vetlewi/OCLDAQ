@@ -71,8 +71,13 @@ FileScalerWriter::~FileScalerWriter()
 void FileScalerWriter::Transmit()
 {
     std::ofstream outfile(fname, std::ios::out | std::ios::app);
+    std::ofstream outdbg("test.dat", std::ios::out);
+
     int timestamp = int(time(NULL));
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
+
+        outdbg << scaler[modNum].processed_events << std::endl;
+        
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
         outfile << ",event_rate_tot=" << std::scientific <<  rate.module_rate;
