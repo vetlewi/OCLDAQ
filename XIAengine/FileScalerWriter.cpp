@@ -76,8 +76,12 @@ void FileScalerWriter::Transmit()
     int timestamp = int(time(NULL));
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
 
-        outdbg << scaler[modNum].processed_events << std::endl;
-        
+        unsigned int stats[448];
+        int re = Pixie16ReadStatisticsFromModule(stats, modNum);
+
+
+        outdbg << Pixie16ComputeProcessedEvents(stats, modNum) << std::endl;
+
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
         outfile << ",event_rate_tot=" << std::scientific <<  rate.module_rate;
