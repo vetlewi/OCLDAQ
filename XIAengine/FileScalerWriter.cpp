@@ -71,7 +71,7 @@ FileScalerWriter::~FileScalerWriter()
 void FileScalerWriter::Transmit()
 {
     std::ofstream outfile(fname, std::ios::out);
-    std::ofstream outdbg("test.dat", std::ios::out | std::ios::app);
+    std::ofstream outdbg("test.dat", std::ios::out /*| std::ios::app*/);
 
     int timestamp = int(time(NULL));
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
