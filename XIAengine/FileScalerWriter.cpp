@@ -80,7 +80,7 @@ void FileScalerWriter::Transmit()
         int re = Pixie16ReadStatisticsFromModule(stats, modNum);
 
 
-        outdbg << Pixie16ComputeProcessedEvents(stats, modNum) << std::endl;
+        outdbg << Pixie16ComputeRealTime(stats, modNum) << std::endl;
 
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
