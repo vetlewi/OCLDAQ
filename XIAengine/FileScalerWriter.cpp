@@ -71,17 +71,10 @@ FileScalerWriter::~FileScalerWriter()
 void FileScalerWriter::Transmit()
 {
     std::ofstream outfile(fname, std::ios::out);
-    std::ofstream outdbg("test.dat", std::ios::out);
+    std::ofstream outdbg("test.dat", std::ios::out | std::ios::app);
 
     int timestamp = int(time(NULL));
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
-
-        //unsigned int stats[448];
-        //int re = Pixie16ReadStatisticsFromModule(stats, modNum);
-
-
-        outdbg << scaler[modNum].real_time << std::endl;
-
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
         for (int chanNum = 0 ; chanNum < NUMBER_OF_CHANNELS ; ++chanNum){
