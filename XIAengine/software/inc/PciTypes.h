@@ -58,8 +58,10 @@
     #include <memory.h>         // To automatically add mem*() set of functions
 #endif
 
+#if !(__APPLE__)
 #if defined(PLX_LINUX) || defined(PLX_LINUX_DRIVER)
-    //#include <linux/types.h>    // Linux types
+    #include <linux/types.h>    // Linux types
+#endif
 #endif
 
 #if defined(PLX_LINUX)
@@ -72,7 +74,7 @@
 extern "C" {
 #endif
 
-
+#if __APPLE__
 typedef int8_t __s8;
 typedef uint8_t __u8;
 typedef int8_t __s16;
@@ -81,6 +83,7 @@ typedef int32_t __s32;
 typedef uint32_t __u32;
 typedef int64_t __s64;
 typedef uint64_t __u64;
+#endif // __APPLE__
 
 /*******************************************
  *   Linux Application Level Definitions
