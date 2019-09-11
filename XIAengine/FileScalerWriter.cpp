@@ -36,7 +36,8 @@ Rate CalculateRate(const Module_Stats &lhs, const Module_Stats &rhs, const int &
     Module_Stats diff = lhs - rhs;
     Rate result;
     double realTime = 1.0e-6 * double(diff.real_time) / (double)SYSTEM_CLOCK_MHZ;
-    double bgTime, liveTime;
+    double bgTime=0, liveTime;
+    result.module_rate = ( realTime > 0 ) ? double(diff.processed_events)/realTime : 0;
 
     if ( modADC == 100 )
         bgTime = 1.0e-6 / 100.0;
@@ -45,12 +46,11 @@ Rate CalculateRate(const Module_Stats &lhs, const Module_Stats &rhs, const int &
     else if ( modADC == 500 )
         bgTime = 5.0 * 1.0e-6 / 500.0;
 
-    result.module_rate = double(diff.processed_events)/realTime;
 
     for (int ChanNum = 0 ; ChanNum < NUMBER_OF_CHANNELS ; ++ChanNum){
         liveTime = double( diff.live_time[ChanNum] )*bgTime;
-        result.input_rate[ChanNum] = double(diff.FastPeaks[ChanNum])/liveTime;
-        result.output_rate[ChanNum] = double(diff.ChanEvents[ChanNum])/liveTime;
+        result.input_rate[ChanNum] = ( liveTime > 0 ) ? double(diff.FastPeaks[ChanNum])/liveTime : 0;
+        result.output_rate[ChanNum] = ( realTime > 0 ) ? double(diff.ChanEvents[ChanNum])/realTime : 0;
     }
 
     return result;
@@ -70,17 +70,17 @@ FileScalerWriter::~FileScalerWriter()
 
 void FileScalerWriter::Transmit()
 {
-    std::ofstream outfile(fname, std::ios::out | std::ios::app);
+    std::ofstream outfile(fname, std::ios::out);
     std::ofstream outdbg("test.dat", std::ios::out);
 
     int timestamp = int(time(NULL));
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
 
-        unsigned int stats[448];
-        int re = Pixie16ReadStatisticsFromModule(stats, modNum);
+        //unsigned int stats[448];
+        //int re = Pixie16ReadStatisticsFromModule(stats, modNum);
 
 
-        outdbg << Pixie16ComputeInputCountRate(stats, modNum, 0) << std::endl;
+        outdbg << scaler[modNum].real_time << std::endl;
 
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
