@@ -24,9 +24,9 @@ Module_Stats operator-(const Module_Stats &lhs, const Module_Stats &rhs)
     result.processed_events = lhs.processed_events - rhs.processed_events;
     result.real_time = lhs.real_time - rhs.real_time;
     for (int chan = 0 ; chan < NUMBER_OF_CHANNELS ; ++chan){
-        result.live_time[chan] = lhs.live_time - rhs.live_time;
-        result.FastPeaks[chan] = lhs.FastPeaks - rhs.FastPeaks;
-        result.ChanEvents[chan] = lhs.ChanEvents - rhs.ChanEvents;
+        result.live_time[chan] = lhs.live_time[chan] - rhs.live_time[chan];
+        result.FastPeaks[chan] = lhs.FastPeaks[chan] - rhs.FastPeaks[chan];
+        result.ChanEvents[chan] = lhs.ChanEvents[chan] - rhs.ChanEvents[chan];
     }
     return result;
 }
@@ -84,7 +84,6 @@ void FileScalerWriter::Transmit()
 
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << "XIAScalers,module=" << modNum;
-        outfile << ",event_rate_tot=" << std::scientific <<  rate.module_rate;
         for (int chanNum = 0 ; chanNum < NUMBER_OF_CHANNELS ; ++chanNum){
             outfile << ",ICR_ch" << chanNum << "=" << std::scientific << rate.input_rate[chanNum];
             outfile << ",OCR_ch" << chanNum << "=" << std::scientific << rate.output_rate[chanNum];
