@@ -79,13 +79,14 @@ void FileScalerWriter::Transmit()
     std::ofstream outfile(fname, std::ios::out | std::ios::app);
 
     uint64_t time = timeSinceEpochMillisec();
-    outfile << time << ",";
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
+        outfile << time << ",";
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
         outfile << modNum;
         for (int chanNum = 0 ; chanNum < NUMBER_OF_CHANNELS ; ++chanNum){
             outfile << "," << std::scientific << rate.input_rate[chanNum];
             outfile << "," << std::scientific << rate.output_rate[chanNum];
         }
+        outfile << "\n";
     }
 }
