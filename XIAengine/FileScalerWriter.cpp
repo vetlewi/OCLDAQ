@@ -7,7 +7,7 @@
 #include <cstring>
 #include <fstream>
 #include <string>
-#include <ctime>
+#include <chrono>
 
 #include "pixie16app_export.h"
 
