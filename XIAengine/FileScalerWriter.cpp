@@ -16,6 +16,11 @@ uint64_t timeSinceEpochMillisec() {
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
+uint64_t timeSinceEpocSec() {
+    using namespace std::chrono;
+    return duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+}
+
 struct Rate
 {
     double module_rate;
@@ -73,12 +78,11 @@ FileScalerWriter::~FileScalerWriter()
     delete[] fname;
 }
 
-
-void FileScalerWriter::Transmit()
+/*void FileScalerWriter::Transmit()
 {
     std::ofstream outfile(fname, std::ios::out | std::ios::app);
 
-    uint64_t time = timeSinceEpochMillisec();
+    uint64_t time = timeSinceEpocSec();
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
         outfile << time << ",";
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
@@ -88,5 +92,21 @@ void FileScalerWriter::Transmit()
             outfile << "," << std::scientific << rate.output_rate[chanNum];
         }
         outfile << "\n";
+    }
+}*/
+
+void FileScalerWriter::Transmit()
+{
+    std::ofstream outfile(fname, std::ios::out | std::ios::app);
+
+    uint64_t time = timeSinceEpocSec();
+    for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
+        Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
+        for (int chanNum = 0 ; chanNum < NUMBER_OF_CHANNELS ; ++chanNum){
+            outfile << time << "," << modNum;
+            outfile << "," << std::scientific << rate.input_rate[chanNum];
+            outfile << "," << std::scientific << rate.output_rate[chanNum];
+            outfile << "\n";
+        }
     }
 }
