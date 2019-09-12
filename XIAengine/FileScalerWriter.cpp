@@ -11,6 +11,11 @@
 
 #include "pixie16app_export.h"
 
+uint64_t timeSinceEpochMillisec() {
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
 struct Rate
 {
     double module_rate;
@@ -68,20 +73,19 @@ FileScalerWriter::~FileScalerWriter()
     delete[] fname;
 }
 
+
 void FileScalerWriter::Transmit()
 {
-    std::ofstream outfile(fname, std::ios::out);
-    std::ofstream outdbg("test.dat", std::ios::out /*| std::ios::app*/);
+    std::ofstream outfile(fname, std::ios::out | std::ios::app);
 
-    int timestamp = int(time(NULL));
+    uint64_t time = timeSinceEpochMillisec();
+    outfile << time << ",";
     for (int modNum = 0 ; modNum < GetNumModules() ; ++modNum){
         Rate rate = CalculateRate(scaler[modNum], pre_scaler[modNum], reinterpret_cast<Module_Info *>(GetModuleInfo())[modNum].Module_ADCMSPS);
-        outfile << "XIAScalers,module=" << modNum;
+        outfile << modNum;
         for (int chanNum = 0 ; chanNum < NUMBER_OF_CHANNELS ; ++chanNum){
-            outfile << ",ICR_ch" << chanNum << "=" << std::scientific << rate.input_rate[chanNum];
-            outfile << ",OCR_ch" << chanNum << "=" << std::scientific << rate.output_rate[chanNum];
+            outfile << "," << std::scientific << rate.input_rate[chanNum];
+            outfile << "," << std::scientific << rate.output_rate[chanNum];
         }
-        outfile << " " << timestamp << std::endl;
     }
-    outfile.close();
 }
