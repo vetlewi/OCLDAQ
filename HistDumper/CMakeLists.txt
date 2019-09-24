@@ -16,4 +16,4 @@ include_directories(
 
 ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
 
-add_executable(HistDumper main.cpp histdump_dict.cxx)
+add_executable(HistDumper main.cpp histdump_dict.cxx ${ROOT_LIBRARIES})
