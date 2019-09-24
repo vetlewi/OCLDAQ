@@ -3,6 +3,8 @@ project(OCLDAQ)
 
 set(CMAKE_CXX_STANDARD 11)
 
+#set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk)
+
 add_subdirectory(sirius)
 add_subdirectory(master)
 add_subdirectory(rupdate)
