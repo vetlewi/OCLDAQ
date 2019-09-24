@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(acq_master)
+cmake_minimum_required(VERSION 3.14)
+project(OCLDAQ)
 
 
 find_package(X11)

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(rupdate)
+cmake_minimum_required(VERSION 3.14)
+project(OCLDAQ)
 
 # You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
 #   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
