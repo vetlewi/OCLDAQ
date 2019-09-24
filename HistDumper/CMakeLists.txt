@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.13)
+project(rupdate)
+
+# You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
+#   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
+#   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+
+
+find_package(ROOT REQUIRED COMPONENTS RIO Net GUI)
+include(${ROOT_USE_FILE})
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
+        ${CMAKE_CURRENT_SOURCE_DIR})
+
+
+ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
+
+add_executable(HistDumper main.cpp histdump_dict.cxx)
