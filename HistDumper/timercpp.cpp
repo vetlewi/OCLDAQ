@@ -38,6 +38,7 @@ void Timer::setInterval_CountDown(std::function<void(int)> function, int tot_num
     std::thread t([=]() {
         int have = 0;
         while(true) {
+            function(tot_num-have);
             if(this->clear) return;
             std::this_thread::sleep_for(std::chrono::milliseconds(subinterval));
             if(this->clear) return;
