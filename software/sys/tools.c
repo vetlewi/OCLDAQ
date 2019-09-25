@@ -184,7 +184,7 @@ int get_ns_per_cycle(double *ns_per_cycle)
 
 	// initialize the counter
 	NumCycles = 100000000;
-	count = int(NumCycles);
+	count = NumCycles;
 	
 	// record the start time
 	gettimeofday(&start_time, NULL);
