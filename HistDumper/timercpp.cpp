@@ -42,6 +42,7 @@ void Timer::setInterval_CountDown(std::function<void(int)> function, int tot_num
             std::this_thread::sleep_for(std::chrono::milliseconds(subinterval));
             if(this->clear) return;
             function(tot_num-have);
+            ++have;
         }
     });
     t.detach();
