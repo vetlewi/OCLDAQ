@@ -22,4 +22,4 @@ include_directories(
 ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
 
 add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp SettingsDialog.cpp SettingsDialog.h histdump_dict.cxx)
-target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl PUBLIC ROOT::Core Gui)
+target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl ROOT::Core Gui)
