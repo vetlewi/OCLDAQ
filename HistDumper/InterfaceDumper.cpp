@@ -144,8 +144,8 @@ void InterfaceDumper::HandleStartStopButton()
                 std::cerr << "Unable to start run..." << std::endl;
                 return;
             }
-            UpdateGUI();
             current_status = running;
+            UpdateGUI();
             fTimer.setInterval(std::bind(&InterfaceDumper::DumpMCA, this), time);
             break;
         }
@@ -396,7 +396,6 @@ bool InterfaceDumper::StartXIA()
         std::cerr << "*ERROR* Pixie16StartHistogramRun failed, retval = " << retval << std::endl;
         return false;
     }
-    std::cout << "Run started" << std::endl;
     return true;
 }
 
