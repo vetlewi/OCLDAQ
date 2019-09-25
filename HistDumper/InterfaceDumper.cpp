@@ -139,10 +139,13 @@ void InterfaceDumper::HandleStartStopButton()
                 return;
             }
 
-            current_status = running;
             time *= 1000;
+            if ( !StartXIA() ){
+                std::cerr << "Unable to start run..." << std::endl;
+                return;
+            }
             UpdateGUI();
-            StartXIA();
+            current_status = running;
             fTimer.setInterval(std::bind(&InterfaceDumper::DumpMCA, this), time);
             break;
         }
