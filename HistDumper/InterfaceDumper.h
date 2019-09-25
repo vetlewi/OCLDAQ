@@ -13,6 +13,11 @@
 #include <TGNumberEntry.h>
 
 #include "timercpp.hpp"
+#include "SettingsDialog.h"
+
+#include <mutex>
+
+typedef std::map<std::string, std::string> fwmap;
 
 class InterfaceDumper : public TGMainFrame
 {
@@ -45,11 +50,15 @@ public:
      */
     void HandleExitButton();
 
+    /*!
+     * Method for handling settings button click.
+     */
+    void HandleSettingsButton();
 
     /*!
      * Method for dumping MCA to file and restarting the XIA run.
      */
-    void DumpMCA();
+    bool DumpMCA();
 
 private:
 
@@ -71,7 +80,8 @@ private:
     enum WidgetID {
         Interval_key = 1,
         StartStop_key = 2,
-        Exit_key = 3
+        Exit_key = 3,
+        Settings_key = 4
     };
 
     /*!
@@ -95,12 +105,20 @@ private:
     bool StopXIA();
 
     /*!
+     * Check run status.
+     */
+    int CheckRunStatus();
+
+    /*!
      * Method for closing the application.
      */
     void CloseWindow();
 
     //! Label for current status.
     TGLabel *fStatus;
+
+    //! XIA settings button.
+    TGTextButton *fSettingsButton;
 
     //! Entry for interval for dumping data to file.
     TGNumberEntry *fInterval;
@@ -113,6 +131,19 @@ private:
 
     //! Timer object that will perform the callback.
     Timer fTimer;
+
+    //! Mutex to make calls to XIA interface thread safe.
+    std::mutex fMCAMutex, fXIAComMutex;
+
+    //! Settings object to read XIA settings from.
+    Settings_t fSettings;
+
+    //! Mapping of XIA firmware data.
+    fwmap firmwares;
+
+    //! Function to get the firmware file paths.
+    bool GetFirmwareFile(const unsigned short &revision, const unsigned short &ADCbits, const unsigned short &ADCMSPS,
+                         char *ComFPGA, char *SPFPGA, char *DSPcode, char *DSPVar);
 
     ClassDef(InterfaceDumper, 1)
 };
