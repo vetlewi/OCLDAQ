@@ -236,6 +236,7 @@ void InterfaceDumper::UpdateGUI()
             fStartButton->SetText("Start");
             fStartButton->SetEnabled(true);
             fExitButton->SetEnabled(true);
+            break;
         }
 
         case running : {
@@ -245,6 +246,7 @@ void InterfaceDumper::UpdateGUI()
             fStartButton->SetText("Stop");
             fStartButton->SetEnabled(true);
             fExitButton->SetEnabled(false);
+            break;
         }
 
     }
