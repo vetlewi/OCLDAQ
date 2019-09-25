@@ -9,7 +9,7 @@ project(rupdate)
 #   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
-add_compile_options("-fPIC")
+set(CMAKE_CXX_FLAGS "-fPIC")
 
 find_package(ROOT CONFIG REQUIRED)
 include(${ROOT_USE_FILE})
