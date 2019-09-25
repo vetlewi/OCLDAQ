@@ -9,7 +9,7 @@ project(rupdate)
 #   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
-find_package(ROOT REQUIRED COMPONENTS RIO Net GUI)
+find_package(ROOT REQUIRED COMPONENTS RIO Net)
 include(${ROOT_USE_FILE})
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
