@@ -433,6 +433,7 @@ bool InterfaceDumper::DumpMCA()
 {
     std::lock_guard<std::mutex> mutex_lock( fMCAMutex );
     fCountDownTimer.stop();
+    fStatus->SetText("Dumping to file");
 
     // First check if there is a run, if not. return false.
     if ( CheckRunStatus() != 1 ){
