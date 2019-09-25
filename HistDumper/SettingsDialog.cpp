@@ -105,7 +105,7 @@ void SettingsDialog::HandleOKButton()
 
     fSettings->firmware_file = std::string(firmwareEntry->GetText());
     fSettings->settings_file = std::string(settingsEntry->GetText());
-
+    OK_pushed();
     CloseWindow();
 }
 

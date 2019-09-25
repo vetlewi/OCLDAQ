@@ -56,6 +56,11 @@ public:
     void HandleSettingsButton();
 
     /*!
+     * Method for handling settings entered click.
+     */
+    void HandleOKClicked();
+
+    /*!
      * Method for dumping MCA to file and restarting the XIA run.
      */
     bool DumpMCA();

@@ -52,6 +52,11 @@ public:
      */
     void HandleSettingsFileDialogButton();
 
+    /*!
+     * Signal that OK has been pushed.
+     */
+    virtual void OK_pushed(){ Emit("OK_pushed()"); } // *SIGNAL*
+
 private:
 
     enum k_Items {

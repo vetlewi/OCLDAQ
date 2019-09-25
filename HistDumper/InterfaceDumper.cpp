@@ -193,16 +193,20 @@ void InterfaceDumper::HandleExitButton()
 
 void InterfaceDumper::HandleSettingsButton()
 {
-    auto *dialog = new SettingsDialog(this, &fSettings);
+    auto *dialog = new SettingsDialog(fClient->GetRoot(), &fSettings);
+    dialog->Connect("OK_pushed()", "InterfaceDumper", this, "HandleOKClicked()");
+}
 
+void InterfaceDumper::HandleOKClicked()
+{
     firmwares = ReadConfigFile(fSettings.firmware_file.c_str());
 
     if ( !SetupXIA() ){
         gApplication->Error("HandleSettingsButton", "Unable to start XIA modules.");
         CloseWindow();
     }
-
 }
+
 
 
 void InterfaceDumper::UpdateGUI()
