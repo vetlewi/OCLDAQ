@@ -236,6 +236,7 @@ void InterfaceDumper::UpdateGUI()
             fExitButton->SetEnabled(true);
             fInterval->SetEditable(true);
             fInterval->SetEditDisabled(kEditEnable);
+            fInterval->SetState(true);
             break;
         }
 
@@ -248,6 +249,7 @@ void InterfaceDumper::UpdateGUI()
             fExitButton->SetEnabled(true);
             fInterval->SetEditable(true);
             fInterval->SetEditDisabled(kEditEnable);
+            fInterval->SetState(true);
             break;
         }
 
@@ -260,6 +262,7 @@ void InterfaceDumper::UpdateGUI()
             fExitButton->SetEnabled(false);
             fInterval->SetEditable(false);
             fInterval->SetEditDisabled(kEditDisable);
+            fInterval->SetState(false);
             break;
         }
 
