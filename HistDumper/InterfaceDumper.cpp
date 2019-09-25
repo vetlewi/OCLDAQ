@@ -208,6 +208,7 @@ void InterfaceDumper::HandleOKClicked()
     }
 
     current_status = XIA_connected;
+    UpdateGUI();
 }
 
 
