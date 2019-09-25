@@ -138,7 +138,7 @@ void InterfaceDumper::HandleStartStopButton()
                 new TGMsgBox(fParent, this, "Error", "Minimum interval is 30 seconds. Please increase interval.");
                 return;
             }
-
+            current_interval = time;
             time *= 1000;
             if ( !StartXIA() ){
                 std::cerr << "Unable to start run..." << std::endl;
@@ -146,7 +146,8 @@ void InterfaceDumper::HandleStartStopButton()
             }
             current_status = running;
             UpdateGUI();
-            fTimer.setInterval(std::bind(&InterfaceDumper::DumpMCA, this), time);
+            fXIATimer.setInterval(std::bind(&InterfaceDumper::DumpMCA, this), time);
+            fCountDownTimer.setInterval_CountDown(std::bind(&InterfaceDumper::UpdateCountdown, this, std::placeholders::_1), current_interval, 1000);
             break;
         }
 
@@ -159,7 +160,8 @@ void InterfaceDumper::HandleStartStopButton()
             }
             StopXIA();
             current_status = XIA_connected;
-            fTimer.stop();
+            fXIATimer.stop();
+            fCountDownTimer.stop();
             UpdateGUI();
             break;
         }
@@ -214,7 +216,12 @@ void InterfaceDumper::HandleOKClicked()
     UpdateGUI();
 }
 
-
+void InterfaceDumper::UpdateCountdown(int num)
+{
+    char text[1024];
+    sprintf(text, "%d sec left", num);
+    fStatus->SetText(text);
+}
 
 void InterfaceDumper::UpdateGUI()
 {
@@ -255,7 +262,12 @@ void InterfaceDumper::UpdateGUI()
 
 void InterfaceDumper::CloseWindow()
 {
-    fTimer.stop();
+    fXIATimer.stop();
+    fCountDownTimer.stop();
+    if ( CheckRunStatus() > 1 )
+        StopXIA();
+
+    int retval = Pixie16ExitSystem(fSettings.num_modules);
     gApplication->Terminate(0);
 }
 
@@ -420,6 +432,7 @@ bool InterfaceDumper::StopXIA()
 bool InterfaceDumper::DumpMCA()
 {
     std::lock_guard<std::mutex> mutex_lock( fMCAMutex );
+    fCountDownTimer.stop();
 
     // First check if there is a run, if not. return false.
     if ( CheckRunStatus() != 1 ){
@@ -457,6 +470,7 @@ bool InterfaceDumper::DumpMCA()
         return false;
     }
 
+    fCountDownTimer.setInterval_CountDown(std::bind(&InterfaceDumper::UpdateCountdown, this, std::placeholders::_1), current_interval, 1000);
     return true;
 }
 

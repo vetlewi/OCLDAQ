@@ -14,6 +14,7 @@ private:
 public:
     void setTimeout(std::function<bool()> function, int delay);
     void setInterval(std::function<bool()> function, int interval);
+    void setInterval_CountDown(std::function<void(int)> function, int interval, int subinterval);
     void stop();
 
 };

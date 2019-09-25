@@ -32,6 +32,21 @@ void Timer::setInterval(std::function<bool()> function, int interval) {
     t.detach();
 }
 
+void Timer::setInterval_CountDown(std::function<void(int)> function, int tot_num, int subinterval)
+{
+    this->clear = false;
+    std::thread t([=]() {
+        int have = 0;
+        while(true) {
+            if(this->clear) return;
+            std::this_thread::sleep_for(std::chrono::milliseconds(subinterval));
+            if(this->clear) return;
+            function(tot_num-have);
+        }
+    });
+    t.detach();
+}
+
 void Timer::stop() {
     this->clear = true;
 }

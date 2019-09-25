@@ -61,6 +61,11 @@ public:
     void HandleOKClicked();
 
     /*!
+     * Method to update countdown clock.
+     */
+    void UpdateCountdown(int num);
+
+    /*!
      * Method for dumping MCA to file and restarting the XIA run.
      */
     bool DumpMCA();
@@ -135,7 +140,7 @@ private:
     TGTextButton *fExitButton;
 
     //! Timer object that will perform the callback.
-    Timer fTimer;
+    Timer fXIATimer, fCountDownTimer;
 
     //! Mutex to make calls to XIA interface thread safe.
     std::mutex fMCAMutex, fXIAComMutex;
@@ -145,6 +150,9 @@ private:
 
     //! Mapping of XIA firmware data.
     fwmap firmwares;
+
+    //! Current interval we are dumping.
+    int current_interval;
 
     //! Function to get the firmware file paths.
     bool GetFirmwareFile(const unsigned short &revision, const unsigned short &ADCbits, const unsigned short &ADCMSPS,
