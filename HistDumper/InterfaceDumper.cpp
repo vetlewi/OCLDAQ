@@ -386,7 +386,6 @@ bool InterfaceDumper::StartXIA()
         return false;
     }
 
-    std::cout << "We are trying to start run..." << std::endl;
     {
         std::lock_guard<std::mutex> mutex_lock( fXIAComMutex );
         retval = Pixie16StartHistogramRun(fSettings.num_modules, NEW_RUN);
