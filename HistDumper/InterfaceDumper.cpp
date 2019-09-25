@@ -91,6 +91,14 @@ InterfaceDumper::InterfaceDumper(const TGWindow *parent)
     , current_status( no_XIA_connected )
 {
 
+    fSettings.num_modules = 7;
+    for ( int i = 0 ; i < fSettings.num_modules ; ++i){
+        fSettings.plxMap[i] = 2+i;
+    }
+
+    fSettings.firmware_file = "XIA_Firmware.txt";
+    fSettings.settings_file = "settings.set";
+
     CreateInterface();
     UpdateGUI();
 
