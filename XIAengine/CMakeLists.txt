@@ -26,17 +26,18 @@ else()
 endif()
 
 include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/software/sys
-        ${CMAKE_CURRENT_SOURCE_DIR}/software/app
-        ${CMAKE_CURRENT_SOURCE_DIR}/software/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/sys
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/app
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/inc
         ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
 )
 
-add_subdirectory(software/app)
-add_subdirectory(software/sys)
-add_subdirectory(software/plx)
+#add_subdirectory(software/app)
+#add_subdirectory(software/sys)
+#add_subdirectory(software/plx)
 
 add_executable(XIAengine ${XIAengine_src})
+add_dependencies(XIAengine XIA_dummy)
 
 if ( Qt5_FOUND )
     target_link_libraries(XIAengine Pixie16App Pixie16Sys Plx sirius ${QT_LIBRARY_DIR} dl)

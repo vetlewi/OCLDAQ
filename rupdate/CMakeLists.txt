@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.13)
 project(OCLDAQ)
 
 # You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:

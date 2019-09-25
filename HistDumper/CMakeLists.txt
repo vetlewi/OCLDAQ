@@ -13,10 +13,13 @@ find_package(ROOT REQUIRED COMPONENTS RIO Net GUI)
 include(${ROOT_USE_FILE})
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/app
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/sys
+        ${CMAKE_CURRENT_SOURCE_DIR}/../software/inc
         ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk)
 #ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
 
-add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp)
-target_link_libraries(HistDumper pthread ${ROOT_LIBRARIES})
+add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp SettingsDialog.cpp SettingsDialog.h)
+target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl ${ROOT_LIBRARIES})
