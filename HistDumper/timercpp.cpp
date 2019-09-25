@@ -1,24 +1,12 @@
 //
-// Created by Vetle Wegner Ingeberg on 24/09/2019.
+// Created by Vetle Wegner Ingeberg on 25/09/2019.
 //
 
-#ifndef TIMERCPP_H
-#define TIMERCPP_H
+#include "timercpp.h"
 
-#include <iostream>
 #include <thread>
 #include <chrono>
-#include <functional>
 
-class Timer {
-    bool clear = false;
-
-public:
-    void setTimeout(std::function<bool()> function, int delay);
-    void setInterval(std::function<bool()> function, int interval);
-    void stop();
-
-};
 
 void Timer::setTimeout(std::function<bool()> function, int delay) {
     this->clear = false;
@@ -47,5 +35,3 @@ void Timer::setInterval(std::function<bool()> function, int interval) {
 void Timer::stop() {
     this->clear = true;
 }
-
-#endif // TIMERCPP_H
