@@ -13,4 +13,4 @@ add_subdirectory(HistDumper)
 add_subdirectory(software)
 
 add_executable(OCLDAQ main.cpp)
-add_dependencies(OCLDAQ sirius acq_master rupdate XIAengine XIAonline HistDumper XIA_dummy)
+add_dependencies(OCLDAQ sirius acq_master HistDumper rupdate XIAengine XIAonline XIA_dummy)
