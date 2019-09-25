@@ -4,8 +4,6 @@
 
 #include "InterfaceDumper.h"
 
-#include "timercpp.hpp"
-
 int main(int argc, char **argv)
 {
     TApplication app("HistDumper", &argc, argv);
