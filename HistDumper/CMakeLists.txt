@@ -9,7 +9,7 @@ project(rupdate)
 #   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
-find_package(ROOT COMPONENTS Core Imt RIO Net Hist Graf Graf3d Gpad ROOTDataFrame Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc)
+find_package(ROOT CONFIG REQUIRED)
 include(${ROOT_USE_FILE})
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
@@ -22,4 +22,4 @@ include_directories(
 ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
 
 add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp SettingsDialog.cpp SettingsDialog.h histdump_dict.cxx)
-target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl ${ROOT_LIBRARIES})
+target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl PUBLIC ROOT::Core Gui)

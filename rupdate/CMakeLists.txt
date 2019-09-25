@@ -7,7 +7,7 @@ project(OCLDAQ)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 
-find_package(ROOT COMPONENTS Core Imt RIO Net Hist Graf Graf3d Gpad ROOTDataFrame Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc)
+find_package(ROOT CONFIG REQUIRED)
 include(${ROOT_USE_FILE})
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../sirius
@@ -16,4 +16,4 @@ include_directories(
 ROOT_GENERATE_DICTIONARY(rupdate_dict rupdate.h io_root.h LINKDEF linkdef.h)
 
 add_executable(rupdate rupdate.cpp io_root.cpp rupdate.h io_root.h rupdate_dict.cxx)
-target_link_libraries(rupdate sirius ${ROOT_LIBRARIES})
+target_link_libraries(rupdate sirius PUBLIC ROOT::Core Gui)
