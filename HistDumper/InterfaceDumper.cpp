@@ -392,6 +392,7 @@ bool InterfaceDumper::StartXIA()
         std::cerr << "*ERROR* Pixie16StartHistogramRun failed, retval = " << retval << std::endl;
         return false;
     }
+    std::cout << "Run started" << std::endl;
     return true;
 }
 
