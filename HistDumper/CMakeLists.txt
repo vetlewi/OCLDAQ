@@ -19,7 +19,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR})
 
 #set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk)
-#ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
+ROOT_GENERATE_DICTIONARY(histdump_dict InterfaceDumper.h LINKDEF LinkDef.h)
 
-add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp SettingsDialog.cpp SettingsDialog.h)
+add_executable(HistDumper main.cpp InterfaceDumper.cpp timercpp.hpp SettingsDialog.cpp SettingsDialog.h histdump_dict.cxx)
 target_link_libraries(HistDumper pthread Pixie16App Pixie16Sys Plx sirius dl ${ROOT_LIBRARIES})
