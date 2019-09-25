@@ -157,7 +157,7 @@ void InterfaceDumper::HandleStartStopButton()
                 gApplication->Error("HandleStartStopButton", "Unable to stop XIA run.");
                 return;
             }
-
+            StopXIA();
             current_status = XIA_connected;
             fTimer.stop();
             UpdateGUI();
