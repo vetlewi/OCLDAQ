@@ -12,7 +12,7 @@
 #include <TGButton.h>
 #include <TGNumberEntry.h>
 
-#include "timercpp.hpp"
+#include "timercpp.h"
 #include "SettingsDialog.h"
 
 #include <mutex>
