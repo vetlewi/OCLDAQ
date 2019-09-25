@@ -377,8 +377,6 @@ bool InterfaceDumper::StartXIA()
 {
     std::lock_guard<std::mutex> mutex_lock( fXIAComMutex );
 
-    std::cout << "We are trying to start run..." << std::endl;
-
     // Check that we are not currently running, if so. Return true? Pixie16StartHistogramRun
     int retval = CheckRunStatus();
     if ( retval == -1 ){
@@ -388,6 +386,8 @@ bool InterfaceDumper::StartXIA()
         std::cerr << "*ERROR* Unable to start run. XIA is already running." << std::endl;
         return false;
     }
+
+    std::cout << "We are trying to start run..." << std::endl;
 
     retval = Pixie16StartHistogramRun(fSettings.num_modules, NEW_RUN);
 
