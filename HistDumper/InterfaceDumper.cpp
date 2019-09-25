@@ -195,6 +195,7 @@ void InterfaceDumper::HandleSettingsButton()
 {
     auto *dialog = new SettingsDialog(fClient->GetRoot(), &fSettings);
     dialog->Connect("OK_pushed()", "InterfaceDumper", this, "HandleOKClicked()");
+    fSettingsButton->SetEnabled(false);
 }
 
 void InterfaceDumper::HandleOKClicked()
@@ -205,6 +206,8 @@ void InterfaceDumper::HandleOKClicked()
         gApplication->Error("HandleSettingsButton", "Unable to start XIA modules.");
         CloseWindow();
     }
+
+    current_status = XIA_connected;
 }
 
 
