@@ -51,7 +51,7 @@ void SettingsDialog::Setup()
     modFrame->AddFrame(mLabel, new TGLayoutHints(kLHintsLeft));
 
     modEntry = new TGNumberEntry(modFrame, 7, 2, k_modEntry, TGNumberEntry::kNESInteger, TGNumberEntry::kNEAPositive, TGNumberEntry::kNELLimitMinMax, 1, 24);
-    AddFrame(modEntry, new TGLayoutHints(kLHintsLeft|kLHintsExpandX));
+    modFrame->AddFrame(modEntry, new TGLayoutHints(kLHintsLeft|kLHintsExpandX));
 
     vFrame->AddFrame(modFrame, new TGLayoutHints(kLHintsTop|kLHintsExpandX));
 
