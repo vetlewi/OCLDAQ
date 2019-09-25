@@ -275,6 +275,9 @@ void InterfaceDumper::CloseWindow()
         StopXIA();
 
     int retval = Pixie16ExitSystem(fSettings.num_modules);
+
+    std::cout << "Exiting XIA, retval = " << retval << std::endl;
+
     gApplication->Terminate(0);
 }
 
