@@ -221,6 +221,7 @@ void InterfaceDumper::UpdateCountdown(int num)
     char text[1024];
     sprintf(text, "%d sec left", num);
     fStatus->SetText(text);
+    DoRedraw();
 }
 
 void InterfaceDumper::UpdateGUI()
@@ -233,6 +234,7 @@ void InterfaceDumper::UpdateGUI()
             fStartButton->SetText("Start");
             fStartButton->SetEnabled(false);
             fExitButton->SetEnabled(true);
+            fInterval->SetEditable(true);
             break;
         }
 
@@ -243,6 +245,7 @@ void InterfaceDumper::UpdateGUI()
             fStartButton->SetText("Start");
             fStartButton->SetEnabled(true);
             fExitButton->SetEnabled(true);
+            fInterval->SetEditable(true);
             break;
         }
 
@@ -253,6 +256,7 @@ void InterfaceDumper::UpdateGUI()
             fStartButton->SetText("Stop");
             fStartButton->SetEnabled(true);
             fExitButton->SetEnabled(false);
+            fInterval->SetEditable(false);
             break;
         }
 
