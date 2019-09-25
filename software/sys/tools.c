@@ -62,7 +62,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <stdint.h>
-#define SECOND 1000*1000*1000	/* nanoseconds/second */
+//#define SECOND 1000*1000*1000	/* nanoseconds/second */
+#define SECOND 1000000000	/* nanoseconds/second */
 #endif
 
 
@@ -183,7 +184,7 @@ int get_ns_per_cycle(double *ns_per_cycle)
 
 	// initialize the counter
 	NumCycles = 100000000;
-	count = NumCycles;
+	count = int(NumCycles);
 	
 	// record the start time
 	gettimeofday(&start_time, NULL);
@@ -292,7 +293,7 @@ unsigned short SYS16_ClrBit(unsigned short bit, unsigned short value)
 
 unsigned short SYS16_TstBit(unsigned short bit, unsigned short value)
 {
-	return(((value & (unsigned short)(pow(2.0, (double)bit))) >> bit));
+	return (((value & (unsigned short)(pow(2.0, (double)bit))) >> bit));
 }
 
 
