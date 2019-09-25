@@ -448,6 +448,7 @@ bool InterfaceDumper::DumpMCA()
             std::cerr << "*ERROR* Pixie16SaveHistogramToFile failed, retval = " << retval << std::endl;
             return false;
         }
+        std::cout << "Dumped " << fname << " to disk." << std::endl;
     }
 
     // Restart the run.
