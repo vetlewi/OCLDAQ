@@ -16,4 +16,4 @@ include_directories(
 ROOT_GENERATE_DICTIONARY(rupdate_dict rupdate.h io_root.h LINKDEF linkdef.h)
 
 add_executable(rupdate rupdate.cpp io_root.cpp rupdate.h io_root.h rupdate_dict.cxx)
-target_link_libraries(rupdate sirius ROOT::Core Gui)
+target_link_libraries(rupdate sirius ROOT::Core ROOT::Hist ROOT::Gpad Gui)
