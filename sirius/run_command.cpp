@@ -85,13 +85,7 @@ bool run_background(const std::string& cmd, const std::vector<std::string>& xarg
         } else if( WIFEXITED(status)) {
             // child exited, return true if exit status is 0
             return WEXITSTATUS(status)==0;
-        } else if( WIFSIGNALED(status) || WCOREDUMP(status) || WIFSTOPPED(status) ) {
-            // child was signaled, dumped core, ...
-            return false;
-        } else {
-            // child still running
-            return true;
-        }
+        } else return !(WIFSIGNALED(status) || WCOREDUMP(status) || WIFSTOPPED(status));
     } else { // fork() error
         return false;
     }
