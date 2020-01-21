@@ -11,8 +11,9 @@ Currently the OCL DAQ software requires the following packages to compile:
 * ROOT 5.xx - Can be downloaded from [here](https://root.cern). Currently the software are not compatible with ROOT 6.
 
 
-# Fix of PLX drivers
+Fix of PLX drivers
 ---
+
 The XIA library for the Pixie-16 relies on the PLX drivers 
 for communication with the modules. The linux library are however
 not updated and uses a fairly old version from 2013. This version
