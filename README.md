@@ -27,5 +27,5 @@ Here is a list of patches that has to be done:
 1) Change include header from `#include <asm/uaccess.h>` to
 `#include <linux/uaccess.h>` in `ApiFunc.c` and `Dispatcher.c`
 (read [here](https://medium.com/@avenger.v14/hi-when-building-the-enhanced-example-with-character-device-i-encountered-a-build-error-for-55079354f704)) 
-2) Comment out line `860, 861` and `865` the following lines in `SuppFunc.c`
+2) Comment out line `860, 861` and `865` in `SuppFunc.c`
 3) If kernel version >= 5, comment out line `1905` and `1918` in `ApiFunc.c`.
