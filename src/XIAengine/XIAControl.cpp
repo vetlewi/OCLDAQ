@@ -908,7 +908,7 @@ bool XIAControl::WriteScalers()
     double ICR[PRESET_MAX_MODULES][16], OCR[PRESET_MAX_MODULES][16];
     unsigned int stats[448];
     int retval;
-    //UpdateSharedMemory();
+
     {
         // Lock the XIA mutex to prevent any other
         // thread from communicating with the modules.
@@ -978,6 +978,23 @@ bool XIAControl::WriteScalers()
             }
         }
     }
+
+    // Get the current time
+    time_t now = time(NULL);
+    FILE *scaler_file = fopen(SCALER_CSV_FILE_NAME, "w");
+
+    // Write CSV file
+    // Settings to be used in the telegraf configuration
+    // that monitors the file:
+    // [
+    fprintf(scaler_file, "measurement,module,channel,input,output,timestamp");
+    for (int i = 0 ; i < num_modules ; ++i){
+        for (int j = 0 ; j < 16 ; ++j){
+            fprintf(scaler_file, "\ncount_rate,%d,%d,%.6f,%.6f,%jd",
+                    i, j, ICR[i][j], OCR[i][j], now);
+        }
+    }
+    fclose(scaler_file);
 
     FILE *scaler_file_in = fopen(SCALER_FILE_NAME_IN, "w");
     FILE *scaler_file_out = fopen(SCALER_FILE_NAME_OUT, "w");

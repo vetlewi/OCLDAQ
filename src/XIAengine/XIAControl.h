@@ -30,6 +30,7 @@ class WriteTerminal;
 #define SIRIUS_BUFFER_SIZE 32768
 #define SCALER_FILE_NAME_IN "scalers_in.dat"
 #define SCALER_FILE_NAME_OUT "scalers_out.dat"
+#define SCALER_CSV_FILE_NAME "scalers.csv"
 #define MAX_RAWDATA_LEN 16 // Maximum length of a raw event without any trace
 #define PRESET_MAX_MODULES 24  // Maximum number of modules. As in the XIA API
 
