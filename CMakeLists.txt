@@ -75,7 +75,7 @@ endif()
 ##############################################
 # Create target and set properties
 
-add_library(sirius STATIC SHARED
+add_library(sirius STATIC
         src/sirius/engine_shm.cpp
         src/sirius/net_control.cpp
         src/sirius/run_command.cpp
