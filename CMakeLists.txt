@@ -312,7 +312,7 @@ endif()
 
 include(GNUInstallDirs)
 
-install(TARGETS sirius master rupdate XIAengine HistDumper XIAonline
+install(TARGETS master rupdate XIAengine HistDumper XIAonline
     EXPORT ${PROJECT_NAME}-targets
     ARCHIVE
         DESTINATION ${CMAKE_INSTALL_LIBDIR}
