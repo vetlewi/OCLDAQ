@@ -248,9 +248,7 @@ if ( ENABLE_XIAENGINE )
             CXX_EXTENSIONS NO)
 
     target_link_options(XIAengine PRIVATE
-            -L/Users/vetlewi/Desktop/OCLDAQ/sirius/src/lib
-            -L/Users/vetlewi/Desktop/XIA_stuff/PlxSdk/PlxApi/Library
-            -L/Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/)
+            -L/opt/xia/current -L/opt/plx/current/PlxSdk/PlxApi/Library)
 
     target_link_libraries(XIAengine
             ${PROJECT_NAME}::sirius
