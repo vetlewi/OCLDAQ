@@ -16,8 +16,10 @@
 #include <cstring>
 #include <sys/time.h>
 
-#include <xia/pixie16app_export.h>
-#include <xia/pixie16sys_export.h>
+#include "pixie16app_export.h"
+#include "pixie16sys_export.h"
+//#include <xia/pixie16app_export.h>
+//#include <xia/pixie16sys_export.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
