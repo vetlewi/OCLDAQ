@@ -218,9 +218,9 @@ if ( ENABLE_XIAENGINE )
 
     add_executable(XIAengine
             src/XIAengine/engine.cpp
-            src/XIAengine/FileScalerWriter.cpp
+            #src/XIAengine/FileScalerWriter.cpp
             src/XIAengine/functions.cpp
-            src/XIAengine/ScalerWriter.cpp
+            #src/XIAengine/ScalerWriter.cpp
             src/XIAengine/WriteTerminal.cpp
             src/XIAengine/XIAControl.cpp
     )

@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "FileScalerWriter.h"
+//#include "FileScalerWriter.h"
 
 class WriteTerminal;
 
@@ -187,7 +187,7 @@ private:
 
     timeval last_time;
 
-    FileScalerWriter swriter;
+    //FileScalerWriter swriter;
 
     // Some private functions that are needed.
 

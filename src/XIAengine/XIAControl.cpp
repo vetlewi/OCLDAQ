@@ -65,7 +65,7 @@ XIAControl::XIAControl(WriteTerminal *writeTerm,
     , is_running( false )
     , thread_is_running( false )
     , settings_file( SETname )
-    , swriter( "scalers.dat" )
+    //, swriter( "scalers.dat" )
 {
     ReadConfigFile(FWname.c_str());
     num_modules = 0;
@@ -855,7 +855,7 @@ bool XIAControl::StopRun()
     std::lock_guard<std::mutex> xia_guard(xia_mutex);
 
     int retval;
-    swriter.Clear();
+    //swriter.Clear();
 
     // In principle, we should only need to do this for one of
     // the modules. However we will try to stop all of them.
@@ -903,7 +903,7 @@ bool XIAControl::SynchModules()
 bool XIAControl::WriteScalers()
 {
 
-    swriter.AcquireScalers();
+    //swriter.AcquireScalers();
 
     double ICR[PRESET_MAX_MODULES][16], OCR[PRESET_MAX_MODULES][16];
     unsigned int stats[448];
