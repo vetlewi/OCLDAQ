@@ -234,6 +234,9 @@ if ( ENABLE_XIAENGINE )
     target_include_directories(XIAengine
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
+            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/app
+            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/sys
+            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/inc
     )
 
     target_compile_definitions(XIAengine PRIVATE -D_FILE_OFFSET_BITS=64)
@@ -243,9 +246,14 @@ if ( ENABLE_XIAENGINE )
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO)
 
+    target_link_options(XIAengine PRIVATE
+            -L/Users/vetlewi/Desktop/OCLDAQ/sirius/src/lib
+            -L/Users/vetlewi/Desktop/XIA_stuff/PlxSdk/PlxApi/Library
+            -L/Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/)
+
     target_link_libraries(XIAengine
             ${PROJECT_NAME}::sirius
-            ${PROJECT_NAME}::xia
+            #${PROJECT_NAME}::xia
             Qt5::Widgets)
 endif()
 
