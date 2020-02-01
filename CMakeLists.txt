@@ -18,6 +18,7 @@ option(ENABLE_DOC "Generates the documentation target" OFF)
 option(ENABLE_COVERAGE "Generates the coverage build" OFF)
 option(ENABLE_TESTING "Turns on testing" OFF)
 
+set(CMAKE_VERBOSE_MAKEFILE 1)
 
 ##############################################
 # Declare dependencies
@@ -254,6 +255,7 @@ if ( ENABLE_XIAENGINE )
     target_link_libraries(XIAengine
             ${PROJECT_NAME}::sirius
             #${PROJECT_NAME}::xia
+            -lPixie16App -lPixie16Sys -lPlxApi -ldl -lrt
             Qt5::Widgets)
 endif()
 
