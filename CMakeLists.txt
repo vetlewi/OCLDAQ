@@ -258,15 +258,15 @@ if ( ENABLE_XIAENGINE )
             -lPixie16App -lPixie16Sys -lPlxApi -ldl -lrt
             Qt5::Widgets)
 
-    add_executable(XIAengineV2
-            src/XIAengineV2/XIAinterface.cpp)
+    #add_executable(XIAengineV2
+    #        src/XIAengineV2/XIAinterface.cpp)
 
-    set_target_properties(XIAengineV2 PROPERTIES
-            CXX_STANDARD 11
-            CXX_STANDARD_REQUIRED YES
-            CXX_EXTENSIONS NO)
+    #set_target_properties(XIAengineV2 PROPERTIES
+    #        CXX_STANDARD 11
+    #        CXX_STANDARD_REQUIRED YES
+    #        CXX_EXTENSIONS NO)
 
-    target_link_libraries(XIAengineV2 ${PROJECT_NAME}::xia)
+    #target_link_libraries(XIAengineV2 ${PROJECT_NAME}::xia)
 
 endif()
 
