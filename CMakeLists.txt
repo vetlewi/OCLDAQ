@@ -18,7 +18,7 @@ option(ENABLE_DOC "Generates the documentation target" OFF)
 option(ENABLE_COVERAGE "Generates the coverage build" OFF)
 option(ENABLE_TESTING "Turns on testing" OFF)
 
-set(CMAKE_VERBOSE_MAKEFILE 1)
+#set(CMAKE_VERBOSE_MAKEFILE 1)
 
 ##############################################
 # Declare dependencies
