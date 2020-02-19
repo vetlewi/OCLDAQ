@@ -236,6 +236,7 @@ if ( ENABLE_XIAENGINE )
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
             /opt/xia/current/app
+            /opt/xia/current/sys
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/app
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/sys
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/inc
