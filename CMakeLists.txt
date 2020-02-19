@@ -235,6 +235,7 @@ if ( ENABLE_XIAENGINE )
     target_include_directories(XIAengine
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
+            /opt/xia/current/include
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/app
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/sys
             /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/inc
