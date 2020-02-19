@@ -992,7 +992,7 @@ bool XIAControl::WriteScalers()
     fprintf(scaler_file, "measurement,module,channel,input,output,timestamp");
     for (int i = 0 ; i < num_modules ; ++i){
         for (int j = 0 ; j < 16 ; ++j){
-            fprintf(scaler_file, "\ncount_rate,%d,%d,%.6f,%.6f,%jd",
+            fprintf(scaler_file, "\ncount_rate,%02d,%02d,%.6f,%.6f,%jd",
                     i, j, ICR[i][j], OCR[i][j], now);
         }
     }
