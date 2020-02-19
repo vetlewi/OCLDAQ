@@ -257,7 +257,7 @@ if ( ENABLE_XIAENGINE )
             Qt5::Widgets)
 
     add_executable(XIAengineV2
-            src/XIAengineV2)
+            src/XIAengineV2/XIAinterface.cpp)
 
     set_target_properties(XIAengineV2 PROPERTIES
             CXX_STANDARD 11
