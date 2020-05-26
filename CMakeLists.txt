@@ -222,7 +222,7 @@ if ( ENABLE_XIAENGINE )
             src/XIAengine/engine.cpp
             #src/XIAengine/FileScalerWriter.cpp
             src/XIAengine/functions.cpp
-            #src/XIAengine/ScalerWriter.cpp
+            src/XIAengine/ScalerWriter.cpp
             src/XIAengine/WriteTerminal.cpp
             src/XIAengine/XIAControl.cpp
     )
@@ -258,7 +258,8 @@ if ( ENABLE_XIAENGINE )
             ${PROJECT_NAME}::sirius
             #${PROJECT_NAME}::xia
             -lPixie16App -lPixie16Sys -lPlxApi -ldl -lrt
-            Qt5::Widgets)
+            Qt5::Widgets
+            InfluxDB)
 
     #add_executable(XIAengineV2
     #        src/XIAengineV2/XIAinterface.cpp)
