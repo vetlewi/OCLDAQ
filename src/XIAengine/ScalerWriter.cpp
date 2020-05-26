@@ -5,7 +5,7 @@
 #include "ScalerWriter.h"
 
 #include <InfluxDBFactory.h>
-#include <spdlog/spdlog.h>
+//#include <spdlog/spdlog.h>
 
 #include <exception>
 #include <iostream>
@@ -53,7 +53,7 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
         pre_scalers = scalers;
         return;
     } else if ( pre_scalers.size() != scalers.size() ){
-        spdlog::error("Length of scalers doesn't match");
+        //spdlog::error("Length of scalers doesn't match");
         pre_scalers = scalers;
         return;
     }
@@ -136,7 +136,7 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
     } catch (const std::exception &e) {
         // Worst case we loose some scalers. However, it doesn't kill our
         // program since it is not critical, just sad :(
-        spdlog::error("ScalerTransmitter: " + std::string(e.what()));
+        //spdlog::error("ScalerTransmitter: " + std::string(e.what()));
         std::cout << "Error transmitting scalers: " << e.what() << std::endl;
     }
 
