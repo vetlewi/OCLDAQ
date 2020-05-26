@@ -2,7 +2,7 @@
 // Created by Vetle Wegner Ingeberg on 04/05/2020.
 //
 
-#include "ScalerTransmitter.h"
+#include "ScalerWriter.h"
 
 #include <InfluxDBFactory.h>
 #include <spdlog/spdlog.h>
