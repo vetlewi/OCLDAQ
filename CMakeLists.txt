@@ -49,7 +49,7 @@ if ( ENABLE_RUPDATE OR ENABLE_HISTDUMPER )
 
     if ( ROOT_FOUND )
         message(STATUS "Found ROOT")
-        include("${ROOT_DIR}/modules/RootNewMacros.cmake")
+        include("${ROOT_DIR}/modules/RootMacros.cmake")
     else()
         message(ERROR "Could not find ROOT, rupdate and histdumper are disabled")
         set(ENABLE_RUPDATE OFF)
