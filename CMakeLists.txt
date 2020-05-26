@@ -257,9 +257,10 @@ if ( ENABLE_XIAENGINE )
     target_link_libraries(XIAengine
             ${PROJECT_NAME}::sirius
             #${PROJECT_NAME}::xia
-            -lPixie16App -lPixie16Sys -lPlxApi -ldl -lrt
+            Pixie16App Pixie16Sys PlxApi rt
             Qt5::Widgets
-            InfluxDB)
+            InfluxDB
+            dl stdc++fs pthread)
 
     #add_executable(XIAengineV2
     #        src/XIAengineV2/XIAinterface.cpp)
