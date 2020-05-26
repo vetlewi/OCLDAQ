@@ -73,6 +73,8 @@ if ( ENABLE_XIAENGINE )
 
 endif()
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/influxdb-cxx)
+
 ##############################################
 # Create target and set properties
 
