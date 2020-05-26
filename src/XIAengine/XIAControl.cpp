@@ -18,6 +18,7 @@
 
 #include "pixie16app_export.h"
 #include "pixie16sys_export.h"
+#include "ScalerWriter.h"
 //#include <xia/pixie16app_export.h>
 //#include <xia/pixie16sys_export.h>
 
@@ -825,6 +826,10 @@ bool XIAControl::StartLMR()
         return false;
     }
     termWrite->Write("List mode started OK\n");
+
+    if ( ScalerTransmitter::Get() )
+        ScalerTransmitter::Get()->Start();
+
     return true;
 }
 
@@ -908,20 +913,26 @@ bool XIAControl::WriteScalers()
     //swriter.AcquireScalers();
 
     double ICR[PRESET_MAX_MODULES][16], OCR[PRESET_MAX_MODULES][16];
-    unsigned int stats[448];
+    //unsigned int stats[448];
+    unsigned int *stats;
     int retval;
+
+    ScalerTransmitter::scaler_array_t array;
+    ScalerTransmitter::scaler_t scalers;
 
     {
         // Lock the XIA mutex to prevent any other
         // thread from communicating with the modules.
         std::lock_guard<std::mutex> xia_guard(xia_mutex);
         for (int i = 0 ; i < num_modules ; ++i){
-            retval = Pixie16ReadStatisticsFromModule(stats, i);
+            retval = Pixie16ReadStatisticsFromModule(array.data(), i);
+            stats = array.data();
             if (retval < 0){
                 sprintf(errmsg, "*ERROR* Pixie16ReadStatisticsFromModule failed, retval = %d\n", retval);
                 termWrite->WriteError(errmsg);
                 Pixie_Print_MSG(errmsg);
             }
+            scalers.push_back(array);
 
             for (int j = 0 ; j < 16 ; ++j){
                 
@@ -979,6 +990,10 @@ bool XIAControl::WriteScalers()
                 last_stats[i][j] = stats[j];
             }
         }
+    }
+
+    if ( ScalerTransmitter::Get() ){
+        ScalerTransmitter::Get()->ProcessScalers(scalers);
     }
 
     // Get the current time

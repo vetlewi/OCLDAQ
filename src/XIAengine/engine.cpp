@@ -5,7 +5,9 @@
 #include <sirius/run_command.h>
 
 #include "WriteTerminal.h"
+#include "ScalerWriter.h"
 #include "XIAControl.h"
+#include "CLI11.hpp"
 
 
 #if BUILD_GUI
@@ -419,11 +421,20 @@ static void cb_disconnected(line_channel*, void*)
 #ifndef TESTGUI
 int main(int argc, char* argv[])
 {
-    if( argc <= 1 ) {
+    /*if( argc <= 1 ) {
         std::cerr << "engine runs with PXI slots as input parameters" << std::endl;
         std::cerr << argv[0] << " 2 3 4 5" << std::endl;
         exit(EXIT_FAILURE);
-    }
+    }*/
+
+    CLI::App app{"XIAengine"};
+
+    std::vector<unsigned short> plxMappings_ui;
+    std::string scaler_server;
+    app.add_option("-m", plxMappings_ui, "PXI mapping of modules")->required();
+    app.add_option("-s", scaler_server, "URI to TS server, [protocol]://[username:password@]host:port[?db=database]");
+
+    CLI11_PARSE(app, argc, argv);
 
     signal(SIGINT, keyb_int); // set up interrupt handler (Ctrl-C)
     signal(SIGPIPE, SIG_IGN);
@@ -471,13 +482,23 @@ int main(int argc, char* argv[])
     unsigned short PXIMapping[PRESET_MAX_MODULES];
     for (int i = 0 ; i < PRESET_MAX_MODULES ; ++i)
         PXIMapping[i] = 0;
-    for (int i = 1 ; i < argc ; ++i)
-        PXIMapping[i] = atoi(argv[i]);
+    for (int i = 1 ; i < plxMappings_ui.size() & i < PRESET_MAX_MODULES ; ++i)
+        PXIMapping[i] = plxMappings_ui[i];
 
     xiacontr = new XIAControl(&termWrite, PXIMapping);
 #ifdef MULTITHREAD
     std::thread poll_thread(static const int MAX_BUFFER_COUNT = 8192; // max 2GB files[](){ xiacontr->XIAthread(); } );
 #endif // MULTITHREAD
+
+    ScalerTransmitter *transmitter;
+    if ( !scaler_server.empty() ){
+        try {
+            transmitter = new ScalerTransmitter(scaler_server.c_str(), xiacontr->GetTSfactors());
+        } catch( const std::exception &e ){
+            std::cerr << "Unable to connect to influx database, error: " << e.what() << std::endl;
+            delete transmitter;
+        }
+    }
 
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);

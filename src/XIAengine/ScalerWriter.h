@@ -1,53 +1,66 @@
 //
-// Created by Vetle Wegner Ingeberg on 10/09/2019.
+// Created by Vetle Wegner Ingeberg on 04/05/2020.
 //
 
-#ifndef SCALERWRITER_H
-#define SCALERWRITER_H
+#ifndef SCALERTRANSMITTER_H
+#define SCALERTRANSMITTER_H
 
-#include <cstdint>
+#include <array>
+#include <memory>
 
-struct Module_Stats;
+#include <pixie16app_export.h> // For PRESET_MAX_MODULES
 
-/*!
- * The class responsible for writing scaler statistics.
- */
-class ScalerWriter {
+#include <InfluxDB.h>
 
-protected:
+#define SCALER_LENGTH 448
 
-    //! Field storing previous scaler data.
-    Module_Stats *pre_scaler;
+class ScalerTransmitter
+{
+public:
+    typedef std::array<unsigned int, SCALER_LENGTH> scaler_array_t;
+    typedef std::vector<scaler_array_t> scaler_t;
 
-    //! Field storing current scaler data.
-    Module_Stats *scaler;
+private:
 
-    //! Save/transmit result.
-    virtual void Transmit() = 0;
+    //! Object with InfluxDB interface
+    std::unique_ptr<influxdb::InfluxDB> db;
+
+    //! A list of factors needed to calculate the scalers correctly
+    std::array<int, PRESET_MAX_MODULES> timestamp_factor{};
+
+    //! Array containing the previously processed scalers
+    scaler_t pre_scalers{};
+
+    //! Time point where readout started
+    std::chrono::time_point<std::chrono::system_clock> start_time;
 
 public:
 
     /*!
-     * Constructor
+     * Setup of the transmitter class
+     * \param url of the TS database
+     * \param ts_factor time scale factor
      */
-    ScalerWriter();
+    ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
 
     /*!
-     * Destructor
+     * Destructor. Only responsible for resetting global pointer to this object.
      */
-    virtual ~ScalerWriter();
+    ~ScalerTransmitter();
 
-    /*!
-     * Instruct the class to acquire a new scaler
-     */
-    int AcquireScalers();
+    //! Set timestamp factors
+    void SetTS_Factor(const int *ts_factor);
 
-    /*!
-     * Call whenever a run is ended.
-     */
-    void Clear();
+    //! Set start time
+    void Start();
+
+    //! Process the scalers and fill buffer
+    void ProcessScalers(const scaler_t &scalers);
+
+    //! Static method to get the ONE (and only one) instance of this class
+    static ScalerTransmitter *Get();
 
 };
 
 
-#endif // SCALERWRITER_H
+#endif // SCALERTRANSMITTER_H

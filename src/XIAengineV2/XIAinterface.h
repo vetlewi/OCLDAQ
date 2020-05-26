@@ -279,6 +279,11 @@ public:
             unsigned int *ExtFIFO_Data, // To receive the external FIFO data
             unsigned int nFIFOWords,    // number of words to read from external FIFO
             unsigned short ModNum);      // module number
+
+    /*!
+     * Get pointer to global instance
+     */
+    static XIAinterface *Get() const;
 };
 
 

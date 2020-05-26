@@ -110,6 +110,9 @@ public:
     // Get number of XIA modules.
     inline int GetNumMod() const { return num_modules; }
 
+    // Get the timescale factors
+    inline const int *GetTSfactors() const { return timestamp_factor; }
+
 private:
 
     // Object responsible for I/O to the stdout & stderr
