@@ -6,7 +6,7 @@
 #define FIRMWAREMAPPER_H
 
 #include <map>
-#include <unordered_map>
+#include <memory>
 #include <string>
 
 namespace spdlog {
