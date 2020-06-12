@@ -48,7 +48,7 @@ std::vector<unsigned short> utils::ReadSlotMap()
         if ( std::stoi(PCIBusNumber) - 3 == 0 ){
             dev_id = 2 + (15 - std::stoi(PCIDevNumber, nullptr, 16));
         } else if ( std::stoi(PCIBusNumber) - 3 == 1 ){
-            dev_id = 8 + (15 - std::stoi(PCIDevNumber));
+            dev_id = 8 + (15 - std::stoi(PCIDevNumber, nullptr, 16));
         }
         slotMap.push_back(dev_id);
     }
