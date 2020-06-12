@@ -40,7 +40,7 @@ std::vector<unsigned short> utils::ReadSlotMap()
     while ( std::getline(stream, line) ){
         // First we need to decode the first two characters
         std::string PCIBusNumber(line.begin(), line.begin()+2);
-        std::string PCIDevNumber(line.begin()+2, line.begin()+4);
+        std::string PCIDevNumber(line.begin()+3, line.begin()+5);
         std::cout << "PCIBusNumber: " << PCIBusNumber << ", PCIDevNumber: " << PCIDevNumber << std::endl;
 
         // We know that slot 2 -> (3,15), 3 -> (3,14), 4 -> (3,13), 5 -> (3, 12), 6 -> (3, 11), etc.
