@@ -269,15 +269,19 @@ if ( ENABLE_XIAENGINE )
     endif()
 
 
-    #add_executable(XIAengineV2
-    #        src/XIAengineV2/XIAinterface.cpp)
+    add_executable(XIARestEngine
+            src/XIARestEngine/XIAinterface.cpp
+            src/XIARestEngine/main.cpp
+            src/XIARestEngine/FirmwareMapper.cpp
+            src/XIARestEngine/ScalerTransmitter.cpp
+            src/XIARestEngine/utils.cpp)
 
-    #set_target_properties(XIAengineV2 PROPERTIES
-    #        CXX_STANDARD 11
-    #        CXX_STANDARD_REQUIRED YES
-    #        CXX_EXTENSIONS NO)
+    set_target_properties(XIARestEngine PROPERTIES
+            CXX_STANDARD 11
+            CXX_STANDARD_REQUIRED YES
+            CXX_EXTENSIONS NO)
 
-    #target_link_libraries(XIAengineV2 ${PROJECT_NAME}::xia)
+    target_link_libraries(XIARestEngine ${PROJECT_NAME}::xia spdlog::spdlog InfluxDB)
 
 endif()
 

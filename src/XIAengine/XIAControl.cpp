@@ -528,7 +528,7 @@ bool XIAControl::ReadConfigFile(const char *config)
 
         fw[key] = val;
     }
-    termWrite->error("Done reading firmware files\n");
+    termWrite->info("Done reading firmware files\n");
     firmwares.swap(fw);
     return true;
 }

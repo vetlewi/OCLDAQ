@@ -1,0 +1,47 @@
+# Rev. B/C/D
+comFPGAConfigFile_RevBCD = /path/to/firmware/syspixie16_RevBCD.bin
+SPFPGAConfigFile_RevBCD = /path/to/firmware/fippixie16_RevBCD.bin
+DSPCodeFile_RevBCD = /path/to/dsp/Pixie16DSP_RevBCD.ldr
+DSPVarFile_RevBCD = /path/to/dsp/Pixie16DSP_RevBCD.var
+
+# Rev. F, 100 MHz, 14 Bit
+comFPGAConfigFile_RevF_100MHz_14Bit = ../firmware/syspixie16_revfgeneral_adc100mhz_rxxxxx.bin
+SPFPGAConfigFile_RevF_100MHz_14Bit = ../firmware/fippixie16_revfgeneral_14b100m_rxxxxx.bin
+DSPCodeFile_RevF_100MHz_14Bit = ../dsp/Pixie16DSP_revfgeneral_14b100m_rxxxxx.ldr
+DSPVarFile_RevF_100MHz_14Bit = ../dsp/Pixie16DSP_revfgeneral_14b100m_rxxxxx.var
+
+# Rev. F, 100 MHz, 16 Bit
+comFPGAConfigFile_RevF_100MHz_16Bit = ../firmware/syspixie16_revfgeneral_adc100mhz_rxxxxx.bin
+SPFPGAConfigFile_RevF_100MHz_16Bit =../firmware/fippixie16_revfgeneral_16b100m_rxxxxx.bin
+DSPCodeFile_RevF_100MHz_16Bit = ../dsp/Pixie16DSP_revfgeneral_16b100m_rxxxxx.ldr
+DSPVarFile_RevF_100MHz_16Bit =../dsp/Pixie16DSP_revfgeneral_16b100m_rxxxxx.var
+
+# Rev. F, 250 MHz, 12 Bit
+comFPGAConfigFile_RevF_250MHz_12Bit = ../firmware/syspixie16_revfgeneral_adc250mhz_rxxxxx.bin
+SPFPGAConfigFile_RevF_250MHz_12Bit = ../firmware/fippixie16_revfgeneral_12b250m_rxxxxx.bin
+DSPCodeFile_RevF_250MHz_12Bit = ../dsp/Pixie16DSP_revfgeneral_12b250m_rxxxxx.ldr
+DSPVarFile_RevF_250MHz_12Bit = ../dsp/Pixie16DSP_revfgeneral_12b250m_rxxxxx.var
+
+# Rev. F, 250 MHz, 14 Bit
+comFPGAConfigFile_RevF_250MHz_14Bit = ../firmware/syspixie16_revfgeneral_adc250mhz_rxxxxx.bin
+SPFPGAConfigFile_RevF_250MHz_14Bit = ../firmware/fippixie16_revfgeneral_14b250m_rxxxxx.bin
+DSPCodeFile_RevF_250MHz_14Bit = ../dsp/Pixie16DSP_revfgeneral_14b250m_rxxxxx.ldr
+DSPVarFile_RevF_250MHz_14Bit = ../dsp/Pixie16DSP_revfgeneral_14b250m_rxxxxx.var
+
+# Rev. F, 250 MHz, 16 Bit
+comFPGAConfigFile_RevF_250MHz_16Bit = /opt/xia/firmware/RevF_16b250MHz/current/syspixie16.bin
+SPFPGAConfigFile_RevF_250MHz_16Bit = /opt/xia/firmware/RevF_16b250MHz/current/fippixie16.bin
+DSPCodeFile_RevF_250MHz_16Bit = /opt/xia/firmware/RevF_16b250MHz/current/Pixie16DSP.ldr
+DSPVarFile_RevF_250MHz_16Bit = /opt/xia/firmware/RevF_16b250MHz/current/Pixie16DSP.var
+
+# Rev. F, 500 MHz, 12 Bit
+comFPGAConfigFile_RevF_500MHz_12Bit = ../firmware/syspixie16_revfgeneral_adc500mhz_rxxxxx.bin
+SPFPGAConfigFile_RevF_500MHz_12Bit = ../firmware/fippixie16_revfgeneral_12b500m_rxxxxx.bin
+DSPCodeFile_RevF_500MHz_12Bit = ../dsp/Pixie16DSP_revfgeneral_12b500m_rxxxxx.ldr
+DSPVarFile_RevF_500MHz_12Bit = ../dsp/Pixie16DSP_revfgeneral_12b500m_rxxxxx.var
+
+# Rev. F, 500 MHz, 14 Bit
+comFPGAConfigFile_RevF_500MHz_14Bit = /opt/xia/firmware/RevF_14b500MHz/current/syspixie16.bin
+SPFPGAConfigFile_RevF_500MHz_14Bit = /opt/xia/firmware/RevF_14b500MHz/current/fippixie16.bin
+DSPCodeFile_RevF_500MHz_14Bit = /opt/xia/firmware/RevF_14b500MHz/current/Pixie16DSP.ldr
+DSPVarFile_RevF_500MHz_14Bit = /opt/xia/firmware/RevF_14b500MHz/current/Pixie16DSP.var

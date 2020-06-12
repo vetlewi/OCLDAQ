@@ -20,7 +20,22 @@ private:
     //! Mutex to lock any access to XIA API
     std::mutex my_guard;
 
+    //! Static object storing the global instance
+    static XIAinterface instance;
+
+    // Private constructor
+    XIAinterface() = default;
+
+    // Make sure not possible to copy
+    XIAinterface(XIAinterface const &) = delete;
+    void operator=(XIAinterface const &) = delete;
+
 public:
+
+    //! Static function to get the XIAinterface.
+    static XIAinterface *Get() {
+        return &instance;
+    }
 
     int PixieInitSystem(
             unsigned short NumModules,
@@ -279,11 +294,6 @@ public:
             unsigned int *ExtFIFO_Data, // To receive the external FIFO data
             unsigned int nFIFOWords,    // number of words to read from external FIFO
             unsigned short ModNum);      // module number
-
-    /*!
-     * Get pointer to global instance
-     */
-    static XIAinterface *Get() const;
 };
 
 
