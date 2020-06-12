@@ -281,6 +281,10 @@ if ( ENABLE_XIAENGINE )
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO)
 
+    if ( NOT APPLE )
+        target_include_directories(XIARestEngine PRIVATE /opt/xia/current/app)
+    endif()
+
     target_link_libraries(XIARestEngine ${PROJECT_NAME}::xia spdlog::spdlog InfluxDB)
 
 endif()
