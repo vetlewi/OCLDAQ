@@ -11,6 +11,7 @@
 #include <string>
 #include <array>
 #include <sstream>
+#include <algorithm>
 
 
 static std::string exec(const char* cmd) {
@@ -52,5 +53,6 @@ std::vector<unsigned short> utils::ReadSlotMap()
         }
         slotMap.push_back(dev_id);
     }
+    std::sort(std::begin(slotMap), std::end(slotMap));
     return slotMap;
 }
