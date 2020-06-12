@@ -74,6 +74,7 @@ if ( ENABLE_XIAENGINE )
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/influxdb-cxx)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog)
 
 ##############################################
 # Create target and set properties
@@ -220,9 +221,8 @@ if ( ENABLE_XIAENGINE )
 
     add_executable(XIAengine
             src/XIAengine/engine.cpp
-            #src/XIAengine/FileScalerWriter.cpp
             src/XIAengine/functions.cpp
-            src/XIAengine/ScalerWriter.cpp
+            src/XIAengine/ScalerTransmitter.cpp
             src/XIAengine/WriteTerminal.cpp
             src/XIAengine/XIAControl.cpp
     )
@@ -232,16 +232,19 @@ if ( ENABLE_XIAENGINE )
                 src/XIAengine/mainwindow.cpp
                 src/XIAengine/mainwindow.ui)
         target_compile_definitions(XIAengine PRIVATE BUILD_GUI=1)
+        set_property(
+            TARGET XIAengine
+            APPEND PROPERTY
+            LINK_LIBRARIES Qt5::Widgets
+        )
     endif()
 
     target_include_directories(XIAengine
         PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/external
             ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
             /opt/xia/current/app
             /opt/xia/current/sys
-            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/app
-            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/sys
-            /Users/vetlewi/Desktop/XIA_stuff/Pixie16_software_linux/software/inc
     )
 
     target_compile_definitions(XIAengine PRIVATE -D_FILE_OFFSET_BITS=64)
@@ -251,16 +254,20 @@ if ( ENABLE_XIAENGINE )
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO)
 
-    target_link_options(XIAengine PRIVATE
-            -L/opt/xia/current -L/opt/plx/current/PlxSdk/PlxApi/Library)
-
     target_link_libraries(XIAengine
             ${PROJECT_NAME}::sirius
-            #${PROJECT_NAME}::xia
+            spdlog::spdlog
             Pixie16App Pixie16Sys PlxApi rt
-            Qt5::Widgets
             InfluxDB
             dl stdc++fs pthread)
+
+    if ( APPLE )
+        target_link_libraries(XIAengine ${PROJECT_NAME}::xia)
+    else()
+        target_link_options(XIAengine PRIVATE
+                -L/opt/xia/current -L/opt/plx/current/PlxSdk/PlxApi/Library)
+    endif()
+
 
     #add_executable(XIAengineV2
     #        src/XIAengineV2/XIAinterface.cpp)

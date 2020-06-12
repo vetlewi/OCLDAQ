@@ -2,14 +2,20 @@
 // Created by Vetle Wegner Ingeberg on 04/05/2020.
 //
 
-#include "ScalerWriter.h"
+#include "ScalerTransmitter.h"
 
 #include <InfluxDBFactory.h>
-//#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h>
 
 #include <exception>
 #include <iostream>
 #include <algorithm>
+
+#if __APPLE__
+#include <xia/pixie16app_export.h>
+#else
+#include <pixie16app_export.h>
+#endif // __APPLE__
 
 #define LIVETIMEA_ADDRESS 0x0004a37f
 #define LIVETIMEB_ADDRESS 0x0004a38f
@@ -20,16 +26,16 @@
 #define CHANEVENTSA_ADDRESS 0x0004a41f
 #define CHANEVENTSB_ADDRESS 0x0004a42f
 
-static ScalerTransmitter *private_transmitter = nullptr;
+ScalerTransmitter *ScalerTransmitter::instance = nullptr;
 
 ScalerTransmitter::ScalerTransmitter(const char *url, const int *ts_factor)
-        : db( influxdb::InfluxDBFactory::Get(url) )
+    : db( influxdb::InfluxDBFactory::Get(url) )
 {
 
-    if ( private_transmitter != nullptr )
+    if ( instance != nullptr )
         throw std::runtime_error("ScalerTransmitter already set!");
     else
-        private_transmitter = this;
+        instance = this;
 
     if ( ts_factor != nullptr )
         std::copy(ts_factor, ts_factor+SCALER_LENGTH, timestamp_factor.begin());
@@ -37,7 +43,7 @@ ScalerTransmitter::ScalerTransmitter(const char *url, const int *ts_factor)
 
 ScalerTransmitter::~ScalerTransmitter()
 {
-    private_transmitter = nullptr;
+    instance = nullptr;
 }
 
 void ScalerTransmitter::Start()
@@ -53,7 +59,7 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
         pre_scalers = scalers;
         return;
     } else if ( pre_scalers.size() != scalers.size() ){
-        //spdlog::error("Length of scalers doesn't match");
+        spdlog::error("Length of scalers doesn't match");
         pre_scalers = scalers;
         return;
     }
@@ -122,11 +128,11 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
             sprintf(chn_str, "%02d", channel);
 
             db->write(influxdb::Point{"count_rate"}
-                              .addField("ICR", ICR)
-                              .addField("OCR", OCR)
-                              .addTag("module", mod_str)
-                              .addTag("channel", chn_str)
-                              .setTimestamp(now));
+            .addField("ICR", ICR)
+            .addField("OCR", OCR)
+            .addTag("module", mod_str)
+            .addTag("channel", chn_str)
+            .setTimestamp(now));
         }
         pre_scalers[module] = scalers[module];
     }
@@ -136,7 +142,7 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
     } catch (const std::exception &e) {
         // Worst case we loose some scalers. However, it doesn't kill our
         // program since it is not critical, just sad :(
-        //spdlog::error("ScalerTransmitter: " + std::string(e.what()));
+        spdlog::error("ScalerTransmitter: " + std::string(e.what()));
         std::cout << "Error transmitting scalers: " << e.what() << std::endl;
     }
 
@@ -151,5 +157,15 @@ void ScalerTransmitter::SetTS_Factor(const int *ts_factor)
 
 ScalerTransmitter *ScalerTransmitter::Get()
 {
-    return private_transmitter;
+    if ( instance == nullptr )
+        throw std::runtime_error("Instance not created properly.");
+    return instance;
+}
+
+ScalerTransmitter *ScalerTransmitter::Get(const char *url, const int *ts_factor)
+{
+    if ( instance )
+        throw std::runtime_error("Instance already created.");
+    instance = new ScalerTransmitter(url, ts_factor);
+    return instance;
 }

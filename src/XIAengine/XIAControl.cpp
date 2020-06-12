@@ -14,13 +14,18 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <utility>
 #include <sys/time.h>
 
-#include "pixie16app_export.h"
-#include "pixie16sys_export.h"
-#include "ScalerWriter.h"
-//#include <xia/pixie16app_export.h>
-//#include <xia/pixie16sys_export.h>
+#include "ScalerTransmitter.h"
+
+#if __APPLE__
+#include <xia/pixie16app_export.h>
+#include <xia/pixie16sys_export.h>
+#else
+#include <pixie16app_export.h>
+#include <pixie16sys_export.h>
+#endif // __APPLE__
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -57,18 +62,17 @@ bool next_line(std::istream &in, std::string &line)
 
 
 
-XIAControl::XIAControl(WriteTerminal *writeTerm,
+XIAControl::XIAControl(std::shared_ptr<spdlog::logger> writeTerm,
                        const unsigned short PXImap[PRESET_MAX_MODULES],
                        const std::string &FWname,
                        const std::string &SETname)
-    : termWrite( writeTerm )
+    : termWrite( std::move(writeTerm) )
     , data_avalible( 0 )
     , is_initialized( false )
     , is_booted( false )
     , is_running( false )
     , thread_is_running( false )
     , settings_file( SETname )
-    //, swriter( "scalers.dat" )
 {
     ReadConfigFile(FWname.c_str());
     num_modules = 0;
@@ -121,9 +125,6 @@ void XIAControl::XIAthread()
             std::this_thread::sleep_for(std::chrono::seconds(1)); // We sleep for 1 second at a time... Maybe a bit much?
         }
     }
-
-
-    return;
 }
 
 
@@ -134,7 +135,7 @@ bool XIAControl::SetPXIMapping(const unsigned short PXImap[PRESET_MAX_MODULES])
 
     if (is_booted || is_initialized ){
         is_initialized = ExitXIA();
-        is_booted = is_initialized ? true : false;
+        is_booted = is_initialized;
     }
 
     // Update the PXI mapping.
@@ -171,7 +172,7 @@ bool XIAControl::SetSettingsFile(const std::string &SETname)
         if (retval < 0){
             is_booted = false; // Try again next time we boot.
             sprintf(errmsg, "*ERROR* Pixie16LoadDSPParametersFromFile failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
         }
     }
@@ -359,9 +360,6 @@ bool XIAControl::XIA_start_run()
         return true;
     }
 
-    //if (shmfd < 0)
-    //    OpenSharedMemory();
-
     // Check if the modules are initialized.
     if (!is_initialized){
         is_initialized = InitializeXIA();
@@ -391,9 +389,9 @@ bool XIAControl::XIA_start_run()
     //AdjustBlCut();
 
     // We will wait a second before moving on.
-    termWrite->Write("Sleeping for 1 second");
+    termWrite->info("Sleeping for 1 second");
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    termWrite->Write("... Awake again\n");
+    termWrite->info("... Awake again\n");
 
     // Write synch to the modules.
     //if (!SynchModules()) // We won't start running unless all modules are in synch and ready for action...
@@ -425,9 +423,9 @@ bool XIAControl::XIA_end_run(FILE *output_file)
 
     // We will wait for 0.5 seconds to make sure that all data
     // has been processed by the XIA DSP/FPGA.
-    termWrite->Write("Sleeping for 0.5 seconds...");
+    termWrite->info("Sleeping for 0.5 seconds...");
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    termWrite->Write("... Awake again.\n");
+    termWrite->info("... Awake again.\n");
 
     // Then we will run a readout of the FIFO.
     if (!ReadFIFO()) // We had an error. I'm not sure how this will be fixed, if fixed...
@@ -459,7 +457,7 @@ bool XIAControl::XIA_end_run(FILE *output_file)
     // Write to disk
     if ( output_file ){
         if ( fwrite(buf, sizeof(uint32_t), size, output_file) != size ){
-            termWrite->WriteError("Error while writing to file...\n");
+            termWrite->error("Error while writing to file...\n");
         }
     }
     delete[] buf;
@@ -476,7 +474,7 @@ bool XIAControl::XIA_reload()
 
     // Exit
     is_initialized = ExitXIA();
-    is_booted = is_initialized ? true : false;
+    is_booted = is_initialized;
     return !is_initialized;
 }
 
@@ -497,10 +495,10 @@ bool XIAControl::ReadConfigFile(const char *config)
     std::string line;
 
     std::map<std::string, std::string> fw;
-    termWrite->Write("Reading firmware file... \n");
+    termWrite->info("Reading firmware file... \n");
 
     if ( !input.is_open() ){
-        termWrite->WriteError("Error: Couldn't read firmware config. file\n");
+        termWrite->error("Error: Couldn't read firmware config. file\n");
         return false;
     }
 
@@ -514,7 +512,7 @@ bool XIAControl::ReadConfigFile(const char *config)
         // If not found, write a warning and continue to next line.
         if ( pos_eq == std::string::npos ){
             sprintf(errmsg, "Could not understand line '%s', continuing...\n", line.c_str());
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             continue;
         }
 
@@ -524,13 +522,13 @@ bool XIAControl::ReadConfigFile(const char *config)
         // If the key have already been entered.
         if ( fw.find(key) != fw.end() ){
             sprintf(errmsg, "Mutiple definitions of '%s'\n", key.c_str());
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             return false;
         }
 
         fw[key] = val;
     }
-    termWrite->Write("Done reading firmware files\n");
+    termWrite->error("Done reading firmware files\n");
     firmwares.swap(fw);
     return true;
 }
@@ -545,7 +543,7 @@ bool XIAControl::InitializeXIA()
 
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16InitSystem failed, retval = %d\n", retval);
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         Pixie_Print_MSG(errmsg);
         return false;
     }
@@ -575,32 +573,32 @@ bool XIAControl::GetFirmwareFile(const unsigned short &revision, const unsigned 
 
     } else {
         sprintf(errmsg, "Unknown Pixie-16 revision, rev=%d\n", revision);
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
 
     // Search our map for the firmware files.
     if ( firmwares.find(key_Com) == firmwares.end() ){
         sprintf(errmsg, "Missing firmware file '%s'\n", key_Com.c_str());
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
 
     if ( firmwares.find(key_SPFPGA) == firmwares.end() ){
         sprintf(errmsg, "Missing firmware file '%s'\n", key_SPFPGA.c_str());
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
 
     if ( firmwares.find(key_DSPcode) == firmwares.end() ){
         sprintf(errmsg, "Missing firmware file '%s'\n", key_DSPcode.c_str());
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
 
     if ( firmwares.find(key_DSPVar) == firmwares.end() ){
         sprintf(errmsg, "Missing firmware file '%s'\n", key_DSPVar.c_str());
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
 
@@ -630,12 +628,12 @@ bool XIAControl::BootXIA()
     unsigned int sn[PRESET_MAX_MODULES];
 
 
-    termWrite->Write("Reading hardware information\n");
+    termWrite->info("Reading hardware information\n");
     for (int i = 0 ; i < num_modules ; ++i){
         retval = Pixie16ReadModuleInfo(i, &rev[i], &sn[i], &bit[i], &MHz[i]);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16ReadModuleInfo failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
@@ -646,7 +644,7 @@ bool XIAControl::BootXIA()
                              ComFPGA, SPFPGA,
                              DSPCode, DSPVar)) {
             sprintf(errmsg, "Module %d: Unknown module\n", i);
-            termWrite->Write(errmsg);
+            termWrite->error(errmsg);
             return false;
         }
 
@@ -667,31 +665,25 @@ bool XIAControl::BootXIA()
 
 
         sprintf(errmsg, "Booting Pixie-16 module #%d, Rev=%d, S/N=%d, Bits=%d, MSPS=%d\n", i, rev[i], sn[i], bit[i], MHz[i]);
-        termWrite->Write(errmsg);
-        termWrite->Write("ComFPGAConfigFile:\t");
-        termWrite->Write(ComFPGA);
-        termWrite->Write("\nSPFPGAConfigFile:\t");
-        termWrite->Write(SPFPGA);
-        termWrite->Write("\nDSPCodeFile:\t");
-        termWrite->Write(DSPCode);
-        termWrite->Write("\nDSPVarFile:\t\t");
-        termWrite->Write(DSPVar);
-        termWrite->Write("\n");
+        termWrite->info(errmsg);
+        termWrite->info("ComFPGAConfigFile:\t" + std::string(ComFPGA));
+        termWrite->info("SPFPGAConfigFile:\t" + std::string(SPFPGA));
+        termWrite->info("DSPCodeFile:\t" + std::string(DSPCode));
+        termWrite->info("DSPVarFile:\t\t" + std::string(DSPVar));
+        //termWrite->info("\n");
         retval = Pixie16BootModule(ComFPGA, SPFPGA, TrigFPGA, DSPCode, DSPSet, DSPVar, i, 0x7F);
-        termWrite->Write("\n----------------------------------------\n\n");
+        //termWrite->info("----------------------------------------");
         
         if (retval < 0){
-            sprintf(errmsg, "*ERROR* Pixie16BootModule failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            sprintf(errmsg, "*ERROR* Pixie16BootModule failed, retval = %d", retval);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
     }
 
-    termWrite->Write("All modules booted.\n");
-    termWrite->Write("DSPParFile:\t");
-    termWrite->Write(DSPSet);
-    termWrite->Write("\n");
+    termWrite->info("All modules booted.");
+    termWrite->info("DSPParFile:\t" + std::string(DSPSet));
     return true;
 }
 
@@ -702,17 +694,18 @@ bool XIAControl::AdjustBaseline()
     // thread from communicating with the modules.
     std::lock_guard<std::mutex> xia_guard(xia_mutex);
 
-    termWrite->Write("Adjusting baseline of all modules and channels...");
-    int retval = AdjustBaselineOffset(num_modules);
+    termWrite->info("Adjusting baseline of all modules and channels...");
+    int retval = Pixie16AdjustOffsets(num_modules);
+    //int retval = AdjustBaselineOffset(num_modules);
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16AdjustOffsets failed, retval = %d\n", retval);
-        termWrite->Write("\n");
-        termWrite->WriteError(errmsg);
+        //termWrite->Write("\n");
+        termWrite->error(errmsg);
         Pixie_Print_MSG(errmsg);
         return false;
     }
 
-    termWrite->Write("\n... Done.\n");
+    termWrite->info("Baseline adjust successful");
     return true;
 }
 
@@ -722,7 +715,7 @@ bool XIAControl::AdjustBlCut()
     // thread from communicating with the modules.
     std::lock_guard<std::mutex> xia_guard(xia_mutex);
 
-    termWrite->Write("Acquiring the baseline cut...");
+    termWrite->info("Acquiring the baseline cut...");
     unsigned int BLcut[PRESET_MAX_MODULES][16];
     int retval;
     for (int i = 0 ; i < num_modules ; ++i){
@@ -730,32 +723,32 @@ bool XIAControl::AdjustBlCut()
             retval = Pixie16BLcutFinder(i, j, &BLcut[i][j]);
             if (retval < 0){
                 sprintf(errmsg, "*ERROR* Pixie16BLcutFinder for mod = %d, ch = %d failed, retval = %d\n", i, j, retval);
-                termWrite->Write("\n");
-                termWrite->WriteError(errmsg);
+                termWrite->error(errmsg);
                 Pixie_Print_MSG(errmsg);
                 return false;
             }
         }
     }
 
-    termWrite->Write("\n... Done.\n");
-    termWrite->Write("Module:");
+    termWrite->info("Baseline cut adjustment successful");
+    std::string result_table;
+    result_table += "\nModule:";
     for (int i = 0 ; i < 16 ; ++i){
-        sprintf(errmsg, "\tCh. %d:",i);
-        termWrite->Write(errmsg);
+        sprintf(errmsg, "\tCh. %d:", i);
+        result_table += std::string(errmsg);
     }
-    termWrite->Write("\n");
+    result_table += "\n";
 
     for (int i = 0 ; i < num_modules ; ++i){
         sprintf(errmsg, "%d:", i);
-        termWrite->Write(errmsg);
+        result_table += std::string(errmsg);
         for (int j = 0 ; j < 16 ; ++j){
             sprintf(errmsg, "\t%d", BLcut[i][j]);
-            termWrite->Write(errmsg);
+            result_table += std::string(errmsg);
         }
-        termWrite->Write("\n");
+        result_table += "\n";
     }
-
+    termWrite->info(result_table);
     return true;
 }
 
@@ -776,7 +769,7 @@ bool XIAControl::StartLMR()
         retval = Pixie16ReadSglModPar(const_cast<char *>("IN_SYNCH"), &synch_val[i], i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16ReadSglModPar reading IN_SYNCH failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
@@ -792,40 +785,40 @@ bool XIAControl::StartLMR()
     #ifdef CHECK_SYNCH
     if (!is_synch){
     #endif // CHECK_SYNCH
-        termWrite->Write("Trying to write IN_SYNCH...\n");
+        termWrite->info("Trying to write IN_SYNCH...");
         retval = Pixie16WriteSglModPar(const_cast<char *>("IN_SYNCH"), 0, 0);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16WriteSglModPar writing IN_SYNCH failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
-        termWrite->Write("... Done.\n");
+        termWrite->info("Wrote IN_SYNC successfully");
     
     #ifdef CHECK_SYNCH
     }
     #endif // CHECK_SYNCH
 
 
-    termWrite->Write("Trying to write SYNCH_WAIT...\n");
+    termWrite->info("Trying to write SYNCH_WAIT...\n");
     retval = Pixie16WriteSglModPar(const_cast<char *>("SYNCH_WAIT"), 1, 0);
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16WriteSglModPar writing SYNCH_WAIT failed, retval = %d\n", retval);
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         Pixie_Print_MSG(errmsg);
         return false;
     }
-    termWrite->Write("... Done.\n");
+    termWrite->info("Wrote SYNCH_WAIT successfully");
 
-    termWrite->Write("About to start list mode run...\n");
+    termWrite->info("About to start list mode run...");
     retval = Pixie16StartListModeRun(num_modules, 0x100, NEW_RUN);
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16StartListModeRun failed, retval = %d\n", retval);
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         Pixie_Print_MSG(errmsg);
         return false;
     }
-    termWrite->Write("List mode started OK\n");
+    termWrite->info("List mode started OK");
 
     if ( ScalerTransmitter::Get() )
         ScalerTransmitter::Get()->Start();
@@ -845,7 +838,7 @@ bool XIAControl::CheckIsRunning()
         retval = Pixie16CheckRunStatus(i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16CheckRunStatus failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
         }
         am_I_running = (am_I_running && retval);
@@ -872,13 +865,13 @@ bool XIAControl::StopRun()
         retval = Pixie16CheckRunStatus(i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16CheckRunStatus failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
         } else if (retval > 0){
             retval = Pixie16EndRun(i);
             if (retval < 0){
                 sprintf(errmsg, "*ERROR* Pixie16EndRun failed, retval = %d\n", retval);
-                termWrite->WriteError(errmsg);
+                termWrite->error(errmsg);
                 Pixie_Print_MSG(errmsg);
                 return false;
             }
@@ -894,15 +887,15 @@ bool XIAControl::SynchModules()
     // thread from communicating with the modules.
     std::lock_guard<std::mutex> xia_guard(xia_mutex);
 
-    termWrite->Write("Trying to write IN_SYNCH...\n");
+    termWrite->info("Trying to write IN_SYNCH...");
     int retval = Pixie16WriteSglModPar(const_cast<char *>("IN_SYNCH"), 0, 0);
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16WriteSglModPar writing IN_SYNCH failed, retval = %d\n", retval);
-        termWrite->WriteError(errmsg);
+        termWrite->error(errmsg);
         Pixie_Print_MSG(errmsg);
         return false;
     }
-    termWrite->Write("... Done.\n");
+    termWrite->info("Wrote IN_SYNC successfully");
 
     return true;
 }
@@ -913,8 +906,6 @@ bool XIAControl::WriteScalers()
     //swriter.AcquireScalers();
 
     double ICR[PRESET_MAX_MODULES][16], OCR[PRESET_MAX_MODULES][16];
-    //unsigned int stats[448];
-    unsigned int *stats;
     int retval;
 
     ScalerTransmitter::scaler_array_t array;
@@ -926,119 +917,19 @@ bool XIAControl::WriteScalers()
         std::lock_guard<std::mutex> xia_guard(xia_mutex);
         for (int i = 0 ; i < num_modules ; ++i){
             retval = Pixie16ReadStatisticsFromModule(array.data(), i);
-            stats = array.data();
             if (retval < 0){
                 sprintf(errmsg, "*ERROR* Pixie16ReadStatisticsFromModule failed, retval = %d\n", retval);
-                termWrite->WriteError(errmsg);
+                termWrite->error(errmsg);
                 Pixie_Print_MSG(errmsg);
+                return false;
             }
             scalers.push_back(array);
-
-            for (int j = 0 ; j < 16 ; ++j){
-                
-                uint64_t fastPeakN = stats[FASTPEAKSA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                fastPeakN = fastPeakN << 32;
-                fastPeakN += stats[FASTPEAKSB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                uint64_t fastPeakP = last_stats[i][FASTPEAKSA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                fastPeakP = fastPeakP << 32;
-                fastPeakP += last_stats[i][FASTPEAKSB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                double fastPeak = fastPeakN - fastPeakP;
-
-                uint64_t LiveTimeN = stats[LIVETIMEA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                LiveTimeN = LiveTimeN << 32;
-                LiveTimeN |= stats[LIVETIMEB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                uint64_t LiveTimeP = last_stats[i][LIVETIMEA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                LiveTimeP = LiveTimeP << 32;
-                LiveTimeP |= last_stats[i][LIVETIMEB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                double liveTime = LiveTimeN - LiveTimeP;
-                if (timestamp_factor[i] == 8)
-                    liveTime *= 2e-6/250.;
-                else
-                    liveTime *= 1e-6/100.;
-
-                uint64_t ChanEventsN = stats[CHANEVENTSA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                ChanEventsN = ChanEventsN << 32;
-                ChanEventsN |= stats[CHANEVENTSB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                uint64_t ChanEventsP = last_stats[i][CHANEVENTSA_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                ChanEventsP = ChanEventsP << 32;
-                ChanEventsP |= last_stats[i][CHANEVENTSB_ADDRESS + j - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                
-                double ChanEvents = ChanEventsN - ChanEventsP;
-
-                uint64_t runTimeN = stats[RUNTIMEA_ADDRESS - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                runTimeN = runTimeN << 32;
-                runTimeN |= stats[RUNTIMEB_ADDRESS - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                uint64_t runTimeP = last_stats[i][RUNTIMEA_ADDRESS - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-                runTimeP = runTimeP << 32;
-                runTimeP |= last_stats[i][RUNTIMEB_ADDRESS - DATA_MEMORY_ADDRESS - DSP_IO_BORDER];
-
-                double runTime = runTimeN - runTimeP;
-
-                runTime *= 1.0e-6 / 100.;
-
-                ICR[i][j] = (liveTime !=0) ? fastPeak/liveTime : 0;
-                OCR[i][j] = (runTime != 0) ? ChanEvents/runTime : 0;
-            }
-
-            for (int j = 0 ; j < 448 ; ++j){
-                last_stats[i][j] = stats[j];
-            }
         }
     }
 
     if ( ScalerTransmitter::Get() ){
         ScalerTransmitter::Get()->ProcessScalers(scalers);
     }
-
-    // Get the current time
-    time_t now = time(NULL);
-    FILE *scaler_file = fopen(SCALER_CSV_FILE_NAME, "w");
-
-    // Write CSV file
-    // Settings to be used in the telegraf configuration
-    // that monitors the file:
-    // [
-    fprintf(scaler_file, "measurement,module,channel,input,output,timestamp");
-    for (int i = 0 ; i < num_modules ; ++i){
-        for (int j = 0 ; j < 16 ; ++j){
-            fprintf(scaler_file, "\ncount_rate,%02d,%02d,%.6f,%.6f,%jd",
-                    i, j, ICR[i][j], OCR[i][j], now);
-        }
-    }
-    fclose(scaler_file);
-
-    FILE *scaler_file_in = fopen(SCALER_FILE_NAME_IN, "w");
-    FILE *scaler_file_out = fopen(SCALER_FILE_NAME_OUT, "w");
-
-    fprintf(scaler_file_in, "Input count rate:\n\n\n");
-    fprintf(scaler_file_out, "Output count rate:\n\n\n");
-
-    for (int i = 0 ; i < 16 ; ++i){
-        fprintf(scaler_file_in, "\t%d", i);
-        fprintf(scaler_file_out, "\t%d", i);
-    }
-    fprintf(scaler_file_in, "\n");
-    fprintf(scaler_file_out, "\n");
-
-    for (int i = 0 ; i < num_modules ; ++i){
-        fprintf(scaler_file_in, "%d", i);
-        fprintf(scaler_file_out, "%d", i);
-        for (int j = 0 ; j < 16 ; ++j){
-            fprintf(scaler_file_in, "\t%.2f", ICR[i][j]);
-            fprintf(scaler_file_out, "\t%.2f", OCR[i][j]);
-        }
-        fprintf(scaler_file_in, "\n");
-        fprintf(scaler_file_out, "\n");
-    }
-
-    fclose(scaler_file_in);
-    fclose(scaler_file_out);
 
     return true;
 }
@@ -1058,7 +949,7 @@ bool XIAControl::CheckFIFO(unsigned int minReadout)
         retval = Pixie16CheckExternalFIFOStatus(&numFIFOwords, i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16CheckExternalFIFOStatus failed, retval = %d\n", i);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
@@ -1086,7 +977,7 @@ bool XIAControl::ReadFIFO()
         retval = Pixie16CheckExternalFIFOStatus(&fifoSize, i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16CheckExternalFIFOStatus failed, retval = %d\n", i);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             return false;
         }
@@ -1097,7 +988,7 @@ bool XIAControl::ReadFIFO()
         retval = Pixie16ReadDataFromExternalFIFO(FIFOdata, fifoSize, i);
         if (retval < 0){
             sprintf(errmsg, "*ERROR* Pixie16ReadDataFromExternalFIFO failed, retval = %d\n", retval);
-            termWrite->WriteError(errmsg);
+            termWrite->error(errmsg);
             Pixie_Print_MSG(errmsg);
             //delete[] FIFOdata;
             return false;
@@ -1125,7 +1016,7 @@ bool XIAControl::ExitXIA()
     int retval = Pixie16ExitSystem(num_modules);
     if (retval < 0){
         sprintf(errmsg, "*ERROR* Pixie16ExitSystem failed, retval = %d\n", retval);
-        termWrite->Write(errmsg);
+        termWrite->error(errmsg);
         return false;
     }
     return true;
@@ -1229,5 +1120,4 @@ void XIAControl::ParseQueue(uint32_t *raw_data, int size, int module)
 
         current_position += event_length;
     }
-    return;
 }

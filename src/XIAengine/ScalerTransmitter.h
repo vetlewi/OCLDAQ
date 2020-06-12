@@ -8,10 +8,9 @@
 #include <array>
 #include <memory>
 
-#include <pixie16app_export.h> // For PRESET_MAX_MODULES
-
 #include <InfluxDB.h>
 
+#define PRESET_MAX_MODULES 24
 #define SCALER_LENGTH 448
 
 class ScalerTransmitter
@@ -19,6 +18,13 @@ class ScalerTransmitter
 public:
     typedef std::array<unsigned int, SCALER_LENGTH> scaler_array_t;
     typedef std::vector<scaler_array_t> scaler_t;
+
+/*!
+ * Setup of the transmitter class
+ * \param url of the TS database
+ * \param ts_factor time scale factor
+ */
+ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
 
 private:
 
@@ -34,14 +40,13 @@ private:
     //! Time point where readout started
     std::chrono::time_point<std::chrono::system_clock> start_time;
 
+    //! Make class own its own instance
+    static ScalerTransmitter *instance;
+
+
 public:
 
-    /*!
-     * Setup of the transmitter class
-     * \param url of the TS database
-     * \param ts_factor time scale factor
-     */
-    ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
+
 
     /*!
      * Destructor. Only responsible for resetting global pointer to this object.
@@ -59,6 +64,9 @@ public:
 
     //! Static method to get the ONE (and only one) instance of this class
     static ScalerTransmitter *Get();
+
+    //! Get (and construct)
+    static ScalerTransmitter *Get(const char *url, const int *ts_factor = nullptr);
 
 };
 

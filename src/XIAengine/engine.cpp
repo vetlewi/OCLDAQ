@@ -5,7 +5,7 @@
 #include <sirius/run_command.h>
 
 #include "WriteTerminal.h"
-#include "ScalerWriter.h"
+#include "ScalerTransmitter.h"
 #include "XIAControl.h"
 #include "CLI11.hpp"
 
@@ -25,10 +25,14 @@
 #include <csignal>
 #include <cstdlib>
 #include <cstdio>
-#include <ctime>
+#include <sys/time.h>
 #include <cassert>
 
 #include <unistd.h>
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #ifdef TESTGUI
 #include "pixie16app_export.h"
@@ -429,12 +433,26 @@ int main(int argc, char* argv[])
 
     CLI::App app{"XIAengine"};
 
+    // Setup logger
+    std::vector<spdlog::sink_ptr> log_sinks;
+    log_sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+    log_sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("Readout_log.txt"));
+    auto log = std::make_shared<spdlog::logger>("logger", std::begin(log_sinks), std::end(log_sinks));
+
     std::vector<unsigned short> plxMappings_ui;
     std::string scaler_server;
+    bool debug = false;
+
     app.add_option("-m", plxMappings_ui, "PXI mapping of modules")->required();
     app.add_option("-s", scaler_server, "URI to TS server, [protocol]://[username:password@]host:port[?db=database]");
+    app.add_flag("-d", debug, "Enable debug logging");
 
     CLI11_PARSE(app, argc, argv);
+
+    log->set_level( ( debug ) ? spdlog::level::debug : spdlog::level::warn );
+    log->set_pattern("[%D %H:%M:%S.%e] [%@] [%l] %v");
+    spdlog::set_default_logger(log);
+
 
     signal(SIGINT, keyb_int); // set up interrupt handler (Ctrl-C)
     signal(SIGPIPE, SIG_IGN);
@@ -442,8 +460,9 @@ int main(int argc, char* argv[])
     commands = new command_list();
     if( (commands->read("acq_master_commands.txt")) ) {
         std::cerr << "Using commands from acq_master_commands.txt." << std::endl;
+        spdlog::info("Using commands from acq_master_commands.txt.");
     } else {
-        std::cerr << "Using default commands." << std::endl;
+        spdlog::info("Using default commands.");
         commands->read_text(
             "mama     = xterm -bg moccasin -fg black -geometry 80x25+5-60 -e mama\n"
             "rupdate  = rupdate\n"
@@ -485,7 +504,7 @@ int main(int argc, char* argv[])
     for (int i = 1 ; i < plxMappings_ui.size() & i < PRESET_MAX_MODULES ; ++i)
         PXIMapping[i] = plxMappings_ui[i];
 
-    xiacontr = new XIAControl(&termWrite, PXIMapping);
+    xiacontr = new XIAControl(log, PXIMapping);
 #ifdef MULTITHREAD
     std::thread poll_thread(static const int MAX_BUFFER_COUNT = 8192; // max 2GB files[](){ xiacontr->XIAthread(); } );
 #endif // MULTITHREAD
@@ -493,7 +512,7 @@ int main(int argc, char* argv[])
     ScalerTransmitter *transmitter;
     if ( !scaler_server.empty() ){
         try {
-            transmitter = new ScalerTransmitter(scaler_server.c_str(), xiacontr->GetTSfactors());
+            transmitter = ScalerTransmitter::Get(scaler_server.c_str(), xiacontr->GetTSfactors());
         } catch( const std::exception &e ){
             std::cerr << "Unable to connect to influx database, error: " << e.what() << std::endl;
             delete transmitter;
@@ -503,7 +522,7 @@ int main(int argc, char* argv[])
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);
     if( !buffer ) {
-        std::cerr << "engine: Failed to attach shared memory." << std::endl;
+        spdlog::error("Failed to attach shared memory.");
         exit(EXIT_FAILURE);
     }
     unsigned int* time_us = &buffer[ENGINE_TIME_US];

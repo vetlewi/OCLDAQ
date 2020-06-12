@@ -13,13 +13,15 @@
 #include <mutex>
 #include <atomic>
 
-#include <sys/time.h>
+#include <ctime>
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include <spdlog/spdlog.h>
 
 //#include "FileScalerWriter.h"
 
@@ -40,6 +42,7 @@ typedef struct {
     uint32_t raw_data[MAX_RAWDATA_LEN]; //! Pointer to the raw data.
     int size_raw;                       //! Size of the raw data in number of 32 bit words.
 } Event_t;
+
 inline bool operator>(const Event_t &a, const Event_t &b) { return (a.timestamp>b.timestamp); }
 
 typedef struct {
@@ -51,7 +54,7 @@ class XIAControl
 {
 public:
 
-    XIAControl(WriteTerminal *writeTerm,
+    XIAControl(std::shared_ptr<spdlog::logger> writeTerm,
                const unsigned short PXImap[PRESET_MAX_MODULES], /*!< PXI mapping                */
                const std::string &FWname="XIA_Firmware.txt",    /*!< Path to firmware settings  */
                const std::string &SETname="settings.set"        /*!< Path to settings file      */);
@@ -116,7 +119,7 @@ public:
 private:
 
     // Object responsible for I/O to the stdout & stderr
-    WriteTerminal *termWrite;
+    std::shared_ptr<spdlog::logger> termWrite;
 
     // Ordered queue to fill with data as it arrives
     //std::vector<Event_t> sorted_events;
@@ -189,8 +192,6 @@ private:
     unsigned int last_stats[PRESET_MAX_MODULES][448];
 
     timeval last_time;
-
-    //FileScalerWriter swriter;
 
     // Some private functions that are needed.
 
