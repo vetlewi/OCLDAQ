@@ -44,13 +44,13 @@ std::vector<unsigned short> utils::ReadSlotMap()
         std::cout << "PCIBusNumber: " << PCIBusNumber << ", PCIDevNumber: " << PCIDevNumber << std::endl;
 
         // We know that slot 2 -> (3,15), 3 -> (3,14), 4 -> (3,13), 5 -> (3, 12), 6 -> (3, 11), etc.
-        /*unsigned short dev_id;
+        unsigned short dev_id;
         if ( std::stoi(PCIBusNumber) - 3 == 0 ){
-            dev_id = 2 + (15 - std::stoi(PCIDevNumber));
+            dev_id = 2 + (15 - std::stoi(PCIDevNumber, nullptr, 16));
         } else if ( std::stoi(PCIBusNumber) - 3 == 1 ){
             dev_id = 8 + (15 - std::stoi(PCIDevNumber));
         }
-        slotMap.push_back(dev_id);*/
+        slotMap.push_back(dev_id);
     }
     return slotMap;
 }
