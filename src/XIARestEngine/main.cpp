@@ -110,6 +110,7 @@ bool StopLM()
 
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
+    std::cout << buffer << std::endl;
     return std::jthread([&](const std::stop_token& st){
         try {
             ListModeReadout readout;
