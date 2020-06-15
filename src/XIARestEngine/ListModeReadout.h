@@ -8,6 +8,7 @@
 #include <vector>
 #include <queue>
 #include <chrono>
+#include <algorithm>
 
 typedef struct entry {
     long long timestamp;

@@ -276,7 +276,9 @@ if ( ENABLE_XIAENGINE )
             src/XIARestEngine/main.cpp
             src/XIARestEngine/FirmwareMapper.cpp
             src/XIARestEngine/ScalerTransmitter.cpp
-            src/XIARestEngine/utils.cpp src/XIARestEngine/ListModeReadout.cpp src/XIARestEngine/ListModeReadout.h src/XIARestEngine/ScalerReadout.cpp src/XIARestEngine/ScalerReadout.h)
+            src/XIARestEngine/utils.cpp
+            src/XIARestEngine/ListModeReadout.cpp
+            src/XIARestEngine/ScalerReadout.cpp)
 
     set_target_properties(XIARestEngine PROPERTIES
             CXX_STANDARD 11
