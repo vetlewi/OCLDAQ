@@ -8,6 +8,8 @@
 #include "XIA_structures.h"
 
 #include <spdlog/spdlog.h>
+#include <iostream>
+
 
 #define EXTFIFO_READ_THRESH 1024
 
@@ -84,21 +86,25 @@ bool ListModeReadout::check_buffer(const int &readout_len, bool end_of_run)
         AddData(lmzdata, numFIFO, module);
     }
 
+    auto res = ( queue.RawSize() + entry_buffer.size() - min_buffer >= readout_len );
+
+    std::cout << res << std::endl;
+
     // Next we will check if the raw size of the buffer is large enough for buffer output.
-    return ( queue.RawSize() + entry_buffer.size() - min_buffer >= readout_len );
+    return res;
 }
 
 
 // ########################################################################
 
-#include <iostream>
+
 bool ListModeReadout::fetch_buffer(unsigned int *data, const int &length, bool end_of_run)
 {
     // First we check that there is in fact enough data to do a readout.
     // Is obsolete if check_buffer has been called properly first.
     if ( !end_of_run && queue.RawSize() + entry_buffer.size() - min_buffer < length )
         return false;
-    std::cout << data << std::endl;
+
     unsigned int *current_pos = data;
 
     // If entrybuffer is larger than length, we have problems...
