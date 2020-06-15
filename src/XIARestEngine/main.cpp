@@ -25,12 +25,11 @@ inline bool LMReadout_loop(FILE *file, unsigned int *buffer, ListModeReadout &re
     // write to that file.
     // Also there will be a readout class that are responsible for all readouts.
     if ( readout.check_buffer(BUFFER_SIZE, eor) ){
-        std::cout << buffer << std::endl;
         if ( !readout.fetch_buffer(buffer, BUFFER_SIZE, eor) ){
             throw std::runtime_error("Error fetching buffer");
+        } else {
+            buffer[BUFFER_SIZE] += 1;
         }
-        std::cout << buffer << std::endl;
-        buffer[BUFFER_SIZE] += 1;
         return true;
     } else {
         return false;
@@ -112,7 +111,9 @@ bool StopLM()
 
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
+    std::cout << buffer << std::endl;
     return std::jthread([&](const std::stop_token& st){
+        std::cout << buffer << std::endl;
         try {
             ListModeReadout readout;
             while (!st.stop_requested())
