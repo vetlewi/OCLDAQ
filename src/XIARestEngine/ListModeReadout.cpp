@@ -73,6 +73,8 @@ bool ListModeReadout::check_buffer(const int &readout_len, bool end_of_run)
             return false;
         }
 
+        std::cout << numFIFO << std::endl;
+
         if ( ( !end_of_run && numFIFO < EXTFIFO_READ_THRESH) || ( numFIFO > 0 ) ) // We do not read out this time
             continue;
 
@@ -86,15 +88,8 @@ bool ListModeReadout::check_buffer(const int &readout_len, bool end_of_run)
         AddData(lmzdata, numFIFO, module);
     }
 
-    auto res = ( int(queue.RawSize() + entry_buffer.size()) - int(min_buffer) >= readout_len );
-
-    std::cout << queue.RawSize() << std::endl;
-    std::cout << entry_buffer.size() << std::endl;
-    std::cout << min_buffer << std::endl;
-    std::cout << int(queue.RawSize() + entry_buffer.size()) - int(min_buffer) << std::endl;
-
     // Next we will check if the raw size of the buffer is large enough for buffer output.
-    return res;
+    return ( int(queue.RawSize() + entry_buffer.size()) - int(min_buffer) >= readout_len );
 }
 
 
