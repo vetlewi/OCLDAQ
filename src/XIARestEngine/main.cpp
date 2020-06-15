@@ -46,7 +46,7 @@ bool bootXIA(const firmware_map_t &fw_map, const char *settings)
             return false;
         }
         spdlog::info("Booting module %d, serial: %d, rev: %d, ADC: %d, MSPS: %d",
-                module, rev, adc_bits, msps);
+                module, serial, rev, adc_bits, msps);
         auto fw = fw_map.find({rev, adc_bits, msps});
         if ( fw == fw_map.end() ){
             spdlog::error("Could not find firmware.");
