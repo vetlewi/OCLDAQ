@@ -28,6 +28,7 @@ inline bool LMReadout_loop(FILE *file, unsigned int *buffer, ListModeReadout &re
         if ( !readout.fetch_buffer(buffer, BUFFER_SIZE, eor) ){
             throw std::runtime_error("Error fetching buffer");
         }
+        buffer[BUFFER_SIZE] += 1;
         return true;
     } else {
         return false;
@@ -82,6 +83,31 @@ bool ExitSystem()
     return true;
 }
 
+bool StartLM()
+{
+    spdlog::info("Starting list mode run...");
+    auto retval = XIAinterface::Get().PixieStartListModeRun(XIAinterface::Get().Get_nModules(),
+            0x100, 1);
+    if ( retval < 0 ){
+        spdlog::error("Pixie16StartListModeRun failed, retval = %d", retval);
+        return false;
+    }
+    spdlog::info("List mode successfully started");
+    return true;
+}
+
+bool StopLM()
+{
+    spdlog::info("Stopping run...");
+    auto retval = XIAinterface::Get().PixieEndRun(XIAinterface::Get().Get_nModules());
+    if( retval < 0 ){
+        spdlog::error("Pixie16EndRun failed, retval = %d", retval);
+        return false;
+    }
+    spdlog::info("Run stopped.");
+    return true;
+}
+
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
     return std::jthread([&](const std::stop_token& st){
@@ -132,6 +158,21 @@ int main()
 
     // Sleep for a second
     std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    if ( !StartLM() ) {
+        ExitSystem();
+        return -1;
+    }
+    unsigned int buffer[BUFFER_SIZE+1];
+    std::fill(buffer, buffer+BUFFER_SIZE+1, 0);
+    std::jthread ro_thread = Start_listmode(nullptr, buffer);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    StopLM();
+    ro_thread.request_stop();
+    if ( ro_thread.joinable() )
+        ro_thread.join();
+
+
     ExitSystem();
 
     std::map<std::string, double> map;
