@@ -88,7 +88,11 @@ bool ListModeReadout::check_buffer(const int &readout_len, bool end_of_run)
 
     auto res = ( queue.RawSize() + entry_buffer.size() - min_buffer >= readout_len );
 
-    std::cout << res << std::endl;
+    std::cout << queue.RawSize() << std::endl;
+    std::cout << queue.RawSize() << std::endl;
+    std::cout << entry_buffer.size() << std::endl;
+    std::cout << min_buffer << std::endl;
+    std::cout << queue.RawSize() + entry_buffer.size() - min_buffer << std::endl;
 
     // Next we will check if the raw size of the buffer is large enough for buffer output.
     return res;
