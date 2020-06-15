@@ -112,8 +112,8 @@ bool StopLM()
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
     std::cout << buffer << std::endl;
-    return std::jthread([&file, &buffer](const std::stop_token& st){
-        std::cout << buffer << std::endl;
+    return std::jthread([file](const std::stop_token& st){
+        unsigned int buffer[BUFFER_SIZE];
         try {
             ListModeReadout readout;
             while (!st.stop_requested())
@@ -167,6 +167,7 @@ int main()
         ExitSystem();
         return -1;
     }
+
     unsigned int *buffer = new unsigned int[BUFFER_SIZE+10];
     std::fill(buffer, buffer+BUFFER_SIZE+10, 0);
     std::jthread ro_thread = Start_listmode(nullptr, buffer);
@@ -176,6 +177,7 @@ int main()
     if ( ro_thread.joinable() )
         ro_thread.join();
     delete[] buffer;
+
 
     ExitSystem();
 
