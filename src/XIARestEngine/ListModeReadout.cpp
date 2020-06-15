@@ -119,7 +119,7 @@ bool ListModeReadout::fetch_buffer(unsigned int *data, const int &length, bool e
             // Set the rest of the buffer to zero
             std::fill(current_pos, data+length, 0);
             return true;
-        } else if ( !end_of_run ) {
+        } else if ( !end_of_run && queue.empty() ) {
             return false;
         }
 
