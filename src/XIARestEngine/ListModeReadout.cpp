@@ -98,7 +98,7 @@ bool ListModeReadout::fetch_buffer(unsigned int *data, const int &length, bool e
     // Is obsolete if check_buffer has been called properly first.
     if ( !end_of_run && queue.RawSize() + entry_buffer.size() - min_buffer < length )
         return false;
-    std::cout << buffer << std::endl;
+    std::cout << data << std::endl;
     unsigned int *current_pos = data;
 
     // If entrybuffer is larger than length, we have problems...
