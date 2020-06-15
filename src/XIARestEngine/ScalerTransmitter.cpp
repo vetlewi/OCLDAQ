@@ -4,6 +4,8 @@
 
 #include "ScalerTransmitter.h"
 
+#include "XIAinterface.h"
+
 #include <InfluxDBFactory.h>
 #include <spdlog/spdlog.h>
 
@@ -11,11 +13,6 @@
 #include <iostream>
 #include <algorithm>
 
-#if __APPLE__
-#include <xia/pixie16app_export.h>
-#else
-#include <pixie16app_export.h>
-#endif // __APPLE__
 
 #define LIVETIMEA_ADDRESS 0x0004a37f
 #define LIVETIMEB_ADDRESS 0x0004a38f
@@ -25,35 +22,41 @@
 #define RUNTIMEB_ADDRESS 0x0004a343
 #define CHANEVENTSA_ADDRESS 0x0004a41f
 #define CHANEVENTSB_ADDRESS 0x0004a42f
+#define DATA_MEMORY_ADDRESS 0x4A000
+#define DSP_IO_BORDER 832
 
-ScalerTransmitter *ScalerTransmitter::instance = nullptr;
-
-ScalerTransmitter::ScalerTransmitter(const char *url, const int *ts_factor)
-    : db( influxdb::InfluxDBFactory::Get(url) )
+ScalerTransmitter::ScalerTransmitter(const char *url)
 {
+    try {
+        db = influxdb::InfluxDBFactory::Get(url);
+    } catch (std::exception &err) {
+        spdlog::error("Unable to connect to database, error '%s'", err.what());
+        db.reset(nullptr);
+    }
 
-    if ( instance != nullptr )
-        throw std::runtime_error("ScalerTransmitter already set!");
-    else
-        instance = this;
-
-    if ( ts_factor != nullptr )
-        std::copy(ts_factor, ts_factor+SCALER_LENGTH, timestamp_factor.begin());
-}
-
-ScalerTransmitter::~ScalerTransmitter()
-{
-    instance = nullptr;
-}
-
-void ScalerTransmitter::Start()
-{
-    start_time = std::chrono::system_clock::now();
-    pre_scalers.clear();
+    unsigned short rev, adc_bits, msps;
+    unsigned int serial;
+    for ( int module = 0 ; module < XIAinterface::Get().Get_nModules() ; ++module ){
+        auto res = XIAinterface::Get().PixieReadModuleInfo(module, &rev, &serial, &adc_bits, &msps);
+        if ( res < 0 ){
+            spdlog::error("*ERROR* Pixie16ReadModuleInfo failed, retval = %d, module = %d", res, module);
+        }
+        if ( msps == 100 || msps == 500 )
+            timestamp_factor[module] = 10;
+        else if ( msps == 250 )
+            timestamp_factor[module] = 8;
+        else {
+            spdlog::warn("Unknown MSPS = %d in module %d, TS factor set to 10.", msps, module);
+            timestamp_factor[module] = 10;
+        }
+    }
 }
 
 void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
 {
+    if ( !db ) // If no DB connection, stop... We don't need to do anything...
+        return;
+
     auto now = std::chrono::system_clock::now();
     if ( pre_scalers.empty() ) {
         pre_scalers = scalers;
@@ -147,25 +150,4 @@ void ScalerTransmitter::ProcessScalers(const scaler_t &scalers)
     }
 
 
-}
-
-void ScalerTransmitter::SetTS_Factor(const int *ts_factor)
-{
-    if ( ts_factor != nullptr )
-        std::copy(ts_factor, ts_factor+SCALER_LENGTH, timestamp_factor.begin());
-}
-
-ScalerTransmitter *ScalerTransmitter::Get()
-{
-    if ( instance == nullptr )
-        throw std::runtime_error("Instance not created properly.");
-    return instance;
-}
-
-ScalerTransmitter *ScalerTransmitter::Get(const char *url, const int *ts_factor)
-{
-    if ( instance )
-        throw std::runtime_error("Instance already created.");
-    instance = new ScalerTransmitter(url, ts_factor);
-    return instance;
 }

@@ -8,6 +8,7 @@
 #include "ScalerTransmitter.h"
 #include "XIAControl.h"
 #include "CLI11.hpp"
+#include "utils.h"
 
 
 #if BUILD_GUI
@@ -58,6 +59,7 @@ static timeval last_time = { 0, 0 };
 static line_server* ls_engine = 0;
 
 static WriteTerminal termWrite;
+static std::shared_ptr<spdlog::logger> logger;
 static XIAControl *xiacontr;
 static std::thread gui_thread;
 static int gui_is_running;
@@ -71,7 +73,7 @@ command_list* commands = 0;
 void keyb_int(int sig_num)
 {
     if (sig_num == SIGINT) {
-        termWrite.Write("\n\nLeaving...\n");
+        logger->info("Leaving...");
         leaveprog = 'y';
     }
 }
@@ -122,13 +124,14 @@ static bool open_file()
             << escape(output_filename)
             << "' for append.\n";
         ls_engine->send_all(out.str());
+        logger->error("Cannot open file '%s'", output_filename);
         return false;
     } else {
         const long fs = ftell(output_file);
         buffer_count = fs / datalen_char;
         char tmp[2048];
         sprintf(tmp, "engine: file '%s' (%d buffers) was opened.\n", output_filename.c_str(), buffer_count);
-        termWrite.Write(tmp);
+        logger->info("File '%s' (%d buffers) was opened.", output_filename, buffer_count);
         return true;
     }
 }
@@ -410,6 +413,7 @@ static void command_output_dir(line_channel* lc, const std::string& line, void*)
 
 static void cb_connected(line_channel* lc, void*)
 {
+
     termWrite.Write("engine: new client\n");
     command_status(lc, "status", 0);
 }
@@ -437,7 +441,7 @@ int main(int argc, char* argv[])
     std::vector<spdlog::sink_ptr> log_sinks;
     log_sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     log_sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("Readout_log.txt"));
-    auto log = std::make_shared<spdlog::logger>("logger", std::begin(log_sinks), std::end(log_sinks));
+    logger = std::make_shared<spdlog::logger>("logger", std::begin(log_sinks), std::end(log_sinks));
 
     std::vector<unsigned short> plxMappings_ui;
     std::string scaler_server;
@@ -449,9 +453,9 @@ int main(int argc, char* argv[])
 
     CLI11_PARSE(app, argc, argv);
 
-    log->set_level( ( debug ) ? spdlog::level::debug : spdlog::level::warn );
-    log->set_pattern("[%D %H:%M:%S.%e] [%@] [%l] %v");
-    spdlog::set_default_logger(log);
+    logger->set_level( ( debug ) ? spdlog::level::debug : spdlog::level::warn );
+    logger->set_pattern("[%D %H:%M:%S.%e] [%@] [%l] %v");
+    spdlog::set_default_logger(logger);
 
 
     signal(SIGINT, keyb_int); // set up interrupt handler (Ctrl-C)
@@ -504,7 +508,7 @@ int main(int argc, char* argv[])
     for (int i = 1 ; i < plxMappings_ui.size() & i < PRESET_MAX_MODULES ; ++i)
         PXIMapping[i] = plxMappings_ui[i];
 
-    xiacontr = new XIAControl(log, PXIMapping);
+    xiacontr = new XIAControl(logger, PXIMapping);
 #ifdef MULTITHREAD
     std::thread poll_thread(static const int MAX_BUFFER_COUNT = 8192; // max 2GB files[](){ xiacontr->XIAthread(); } );
 #endif // MULTITHREAD

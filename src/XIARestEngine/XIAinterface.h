@@ -6,6 +6,7 @@
 #define OCLDAQ_XIAINTERFACE_H
 
 #include <mutex>
+#include <vector>
 
 
 /*!
@@ -20,11 +21,11 @@ private:
     //! Mutex to lock any access to XIA API
     std::mutex my_guard;
 
-    //! Static object storing the global instance
-    static XIAinterface instance;
+    //! Slot mapping
+    std::vector<unsigned short> plxSlotMap;
 
     // Private constructor
-    XIAinterface() = default;
+    XIAinterface();
 
     // Make sure not possible to copy
     XIAinterface(XIAinterface const &) = delete;
@@ -33,9 +34,13 @@ private:
 public:
 
     //! Static function to get the XIAinterface.
-    static XIAinterface *Get() {
-        return &instance;
+    static XIAinterface &Get() {
+        static XIAinterface instance;
+        return instance;
     }
+
+    [[nodiscard]] inline unsigned short Get_nModules() const
+        { return static_cast<unsigned short>(plxSlotMap.size()); }
 
     int PixieInitSystem(
             unsigned short NumModules,

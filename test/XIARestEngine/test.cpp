@@ -17,3 +17,12 @@ void TestFWMapper()
         std::cout << "\tDSPvar: " << entry.second.DSP_var << "\n";
     }
 }
+
+void TestFindSlotMap()
+{
+    auto slots = utils::ReadSlotMap();
+
+    for ( auto &r : slots ){
+        std::cout << r << std::endl;
+    }
+}

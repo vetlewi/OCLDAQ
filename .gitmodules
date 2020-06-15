@@ -4,3 +4,12 @@
 [submodule "external/influxdb-cxx"]
 	path = external/influxdb-cxx
 	url = https://github.com/awegrzyn/influxdb-cxx.git
+[submodule "external/cpp-httplib"]
+	path = external/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git
+[submodule "external/cereal"]
+	path = external/cereal
+	url = https://github.com/USCiLab/cereal
+[submodule "external/jthread"]
+	path = external/jthread
+	url = https://github.com/josuttis/jthread.git

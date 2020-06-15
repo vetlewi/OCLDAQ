@@ -75,6 +75,8 @@ endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/influxdb-cxx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cpp-httplib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cereal)
 
 ##############################################
 # Create target and set properties
@@ -274,7 +276,7 @@ if ( ENABLE_XIAENGINE )
             src/XIARestEngine/main.cpp
             src/XIARestEngine/FirmwareMapper.cpp
             src/XIARestEngine/ScalerTransmitter.cpp
-            src/XIARestEngine/utils.cpp)
+            src/XIARestEngine/utils.cpp src/XIARestEngine/ListModeReadout.cpp src/XIARestEngine/ListModeReadout.h src/XIARestEngine/ScalerReadout.cpp src/XIARestEngine/ScalerReadout.h)
 
     set_target_properties(XIARestEngine PROPERTIES
             CXX_STANDARD 11
@@ -285,7 +287,16 @@ if ( ENABLE_XIAENGINE )
         target_include_directories(XIARestEngine PRIVATE /opt/xia/current/app)
     endif()
 
-    target_link_libraries(XIARestEngine ${PROJECT_NAME}::xia spdlog::spdlog InfluxDB)
+    target_include_directories(XIARestEngine PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/external/jthread/source)
+
+
+    target_link_libraries(XIARestEngine
+            ${PROJECT_NAME}::xia
+            spdlog::spdlog
+            InfluxDB
+            cereal
+            httplib::httplib)
 
 endif()
 

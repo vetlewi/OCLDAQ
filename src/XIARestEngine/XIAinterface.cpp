@@ -3,16 +3,26 @@
 //
 
 #include "XIAinterface.h"
+#include "utils.h"
 
 #include <xia/pixie16app_export.h>
-
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <cmath>
 
-XIAinterface XIAinterface::instance;
 
 #define GUARD(func) int res; { std::lock_guard<std::mutex> guard(my_guard); res = func; } return res;
+
+XIAinterface::XIAinterface() : plxSlotMap( utils::ReadSlotMap() )
+{
+    // Initializing the system.
+    int res = PixieInitSystem(static_cast<unsigned short>(plxSlotMap.size()),
+            plxSlotMap.data(), 0);
+    if (res < 0){
+        std::string errmsg = "Pixie16InitSystem failed, retval = " + std::to_string(res);
+        throw std::runtime_error(errmsg);
+    }
+}
 
 int XIAinterface::PixieInitSystem(unsigned short NumModules, unsigned short *PXISlotMap, unsigned short OfflineMode)
 {

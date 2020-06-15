@@ -19,13 +19,6 @@ public:
     typedef std::array<unsigned int, SCALER_LENGTH> scaler_array_t;
     typedef std::vector<scaler_array_t> scaler_t;
 
-/*!
- * Setup of the transmitter class
- * \param url of the TS database
- * \param ts_factor time scale factor
- */
-ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
-
 private:
 
     //! Object with InfluxDB interface
@@ -37,36 +30,13 @@ private:
     //! Array containing the previously processed scalers
     scaler_t pre_scalers{};
 
-    //! Time point where readout started
-    std::chrono::time_point<std::chrono::system_clock> start_time;
-
-    //! Make class own its own instance
-    static ScalerTransmitter *instance;
-
-
 public:
 
-
-
-    /*!
-     * Destructor. Only responsible for resetting global pointer to this object.
-     */
-    ~ScalerTransmitter();
-
-    //! Set timestamp factors
-    void SetTS_Factor(const int *ts_factor);
-
-    //! Set start time
-    void Start();
+    //! Constructor
+    explicit ScalerTransmitter(const char *url);
 
     //! Process the scalers and fill buffer
     void ProcessScalers(const scaler_t &scalers);
-
-    //! Static method to get the ONE (and only one) instance of this class
-    static ScalerTransmitter *Get();
-
-    //! Get (and construct)
-    static ScalerTransmitter *Get(const char *url, const int *ts_factor = nullptr);
 
 };
 
