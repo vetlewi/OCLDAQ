@@ -164,8 +164,8 @@ int main()
         ExitSystem();
         return -1;
     }
-    unsigned int buffer[BUFFER_SIZE+1];
-    std::fill(buffer, buffer+BUFFER_SIZE+1, 0);
+    unsigned int buffer[BUFFER_SIZE+10];
+    std::fill(buffer, buffer+BUFFER_SIZE+10, 0);
     std::jthread ro_thread = Start_listmode(nullptr, buffer);
     std::this_thread::sleep_for(std::chrono::seconds(5));
     StopLM();
