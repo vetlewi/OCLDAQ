@@ -119,6 +119,7 @@ std::jthread Start_listmode(FILE *file, unsigned int *buffer)
                 // Continue running until we get false
             }
         } catch (const std::exception &err) {
+            spdlog::error(err.what());
             spdlog::error("Could not start readout, error '%s'", err.what());
         }
     });
