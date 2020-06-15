@@ -86,7 +86,7 @@ bool ListModeReadout::check_buffer(const int &readout_len, bool end_of_run)
         AddData(lmzdata, numFIFO, module);
     }
 
-    auto res = ( queue.RawSize() + entry_buffer.size() - min_buffer >= readout_len );
+    auto res = ( int(queue.RawSize() + entry_buffer.size()) - int(min_buffer) >= readout_len );
 
     std::cout << queue.RawSize() << std::endl;
     std::cout << entry_buffer.size() << std::endl;
