@@ -22,6 +22,7 @@ XIAinterface::XIAinterface() : plxSlotMap( utils::ReadSlotMap() )
         std::string errmsg = "Pixie16InitSystem failed, retval = " + std::to_string(res);
         throw std::runtime_error(errmsg);
     }
+    spdlog::info("Pixie-16 system successfully initialized");
 }
 
 int XIAinterface::PixieInitSystem(unsigned short NumModules, unsigned short *PXISlotMap, unsigned short OfflineMode)
