@@ -24,6 +24,7 @@ inline bool LMReadout_loop(FILE *file, unsigned int *buffer, ListModeReadout &re
     // We will read data anyways... But if the file is != null then we will
     // write to that file.
     // Also there will be a readout class that are responsible for all readouts.
+    std::cout << buffer << std::endl;
     if ( readout.check_buffer(BUFFER_SIZE, eor) ){
         if ( !readout.fetch_buffer(buffer, BUFFER_SIZE, eor) ){
             throw std::runtime_error("Error fetching buffer");
@@ -111,7 +112,6 @@ bool StopLM()
 
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
-    std::cout << buffer << std::endl;
     return std::jthread([file](const std::stop_token& st){
         unsigned int buffer[BUFFER_SIZE];
         try {
