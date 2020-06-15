@@ -34,6 +34,54 @@ inline bool LMReadout_loop(FILE *file, unsigned int *buffer, ListModeReadout &re
     }
 }
 
+bool bootXIA(const firmware_map_t &fw_map, const char *settings)
+{
+    auto &interface = XIAinterface::Get();
+    unsigned short rev, adc_bits, msps;
+    unsigned int serial;
+    for ( int module = 0 ; module < interface.Get_nModules() ; ++module ){
+        auto retval = interface.PixieReadModuleInfo(module, &rev, &serial, &adc_bits, &msps);
+        if ( retval < 0 ){
+            spdlog::error("Pixie16ReadModuleInfo failed, retval = %d", retval);
+            return false;
+        }
+        spdlog::info("Booting module %d, serial: %d, rev: %d, ADC: %d, MSPS: %d",
+                module, rev, adc_bits, msps);
+        auto fw = fw_map.find({rev, adc_bits, msps});
+        if ( fw == fw_map.end() ){
+            spdlog::error("Could not find firmware.");
+            return false;
+        }
+
+        retval = interface.PixieBootModule(fw->second.FPGA_com.c_str(),
+                                           fw->second.FPGA_SP.c_str(),
+                                           nullptr,
+                                           fw->second.DSP_code.c_str(),
+                                           settings,
+                                           fw->second.DSP_var.c_str(),
+                                           module,
+                                           0x7F);
+        if ( retval < 0 ){
+            spdlog::error("Pixie16BootModule failed, retval = %d", retval);
+            return false;
+        }
+        spdlog::info("Module %d: Boot successful", module);
+    }
+    return true;
+}
+
+bool ExitSystem()
+{
+    spdlog::info("Exiting XIA system...");
+    auto retval = XIAinterface::Get().PixieExitSystem(XIAinterface::Get().Get_nModules());
+    if ( retval < 0 ){
+        spdlog::error("Pixie16ExitSystem failed, retval = %d", retval);
+        return false;
+    }
+    spdlog::info("XIA successfully exited");
+    return true;
+}
+
 std::jthread Start_listmode(FILE *file, unsigned int *buffer)
 {
     return std::jthread([&](const std::stop_token& st){
@@ -78,6 +126,13 @@ int main()
         exit(EXIT_FAILURE);
 #endif // !__APPLE__
     }
+
+    auto fw_map = ReadConfigFile("firmware.txt");
+    bootXIA(fw_map, "settings.set");
+
+    // Sleep for a second
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    ExitSystem();
 
     std::map<std::string, double> map;
 

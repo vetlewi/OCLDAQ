@@ -58,12 +58,12 @@ public:
             unsigned short *ModADCMSPS  /*!< returned module ADC sampling rate */);
 
     int PixieBootModule(
-            char *ComFPGAConfigFile,      // name of communications FPGA configuration file
-            char *SPFPGAConfigFile,       // name of signal processing FPGA configuration file
-            char *TrigFPGAConfigFile,     // name of trigger FPGA configuration file
-            char *DSPCodeFile,            // name of executable code file for digital signal processor (DSP)
-            char *DSPParFile,             // name of DSP parameter file
-            char *DSPVarFile,             // name of DSP variable names file
+            const char *ComFPGAConfigFile,      // name of communications FPGA configuration file
+            const char *SPFPGAConfigFile,       // name of signal processing FPGA configuration file
+            const char *TrigFPGAConfigFile,     // name of trigger FPGA configuration file
+            const char *DSPCodeFile,            // name of executable code file for digital signal processor (DSP)
+            const char *DSPParFile,             // name of DSP parameter file
+            const char *DSPVarFile,             // name of DSP variable names file
             unsigned short ModNum,        // pixie module number
             unsigned short BootPattern); // boot pattern bit mask
 

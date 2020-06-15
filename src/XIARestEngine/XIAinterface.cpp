@@ -41,12 +41,22 @@ int XIAinterface::PixieReadModuleInfo(unsigned short ModNum, unsigned short *Mod
     GUARD(Pixie16ReadModuleInfo(ModNum, ModRev, ModSerNum, ModADCBits, ModADCMSPS))
 }
 
-int XIAinterface::PixieBootModule(char *ComFPGAConfigFile, char *SPFPGAConfigFile, char *TrigFPGAConfigFile,
-                                  char *DSPCodeFile, char *DSPParFile, char *DSPVarFile, unsigned short ModNum,
+int XIAinterface::PixieBootModule(const char *ComFPGAConfigFile, const char *SPFPGAConfigFile, const char *TrigFPGAConfigFile,
+                                  const char *DSPCodeFile, const char *DSPParFile, const char *DSPVarFile, unsigned short ModNum,
                                   unsigned short BootPattern)
 {
-    GUARD(Pixie16BootModule(ComFPGAConfigFile, SPFPGAConfigFile, TrigFPGAConfigFile, DSPCodeFile,
-                            DSPParFile, DSPVarFile, ModNum, BootPattern))
+    char comFPGA[2048], spFPGA[2048], trigFPGA[2048], DSPcode[2048], DSPpar[2048], DSPvar[2048];
+    snprintf(comFPGA, sizeof comFPGA, "%s", ComFPGAConfigFile);
+    snprintf(spFPGA, sizeof spFPGA, "%s", SPFPGAConfigFile);
+    snprintf(trigFPGA, sizeof trigFPGA, "%s", TrigFPGAConfigFile);
+    snprintf(DSPcode, sizeof DSPcode, "%s", DSPCodeFile);
+    snprintf(DSPpar, sizeof DSPpar, "%s", DSPParFile);
+    snprintf(DSPvar, sizeof DSPvar, "%s", DSPVarFile);
+
+
+
+    GUARD(Pixie16BootModule(comFPGA, spFPGA, trigFPGA, DSPcode,
+                            DSPpar, DSPvar, ModNum, BootPattern))
 }
 
 int XIAinterface::PixieAcquireADCTrace(unsigned short ModNum)
