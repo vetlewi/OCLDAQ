@@ -513,14 +513,15 @@ int main(int argc, char* argv[])
     std::thread poll_thread(static const int MAX_BUFFER_COUNT = 8192; // max 2GB files[](){ xiacontr->XIAthread(); } );
 #endif // MULTITHREAD
 
-    ScalerTransmitter *transmitter;
+    ScalerTransmitter *transmitter = nullptr;
     if ( !scaler_server.empty() ){
         try {
-            transmitter = ScalerTransmitter::Get(scaler_server.c_str(), xiacontr->GetTSfactors());
+            transmitter = new ScalerTransmitter(scaler_server.c_str(), xiacontr->GetTSfactors());
         } catch( const std::exception &e ){
             std::cerr << "Unable to connect to influx database, error: " << e.what() << std::endl;
         }
     }
+    xiacontr->SetScalerTransmitter(transmitter);
 
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);

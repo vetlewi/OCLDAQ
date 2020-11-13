@@ -73,6 +73,7 @@ XIAControl::XIAControl(std::shared_ptr<spdlog::logger> writeTerm,
     , is_running( false )
     , thread_is_running( false )
     , settings_file( SETname )
+    , transmitter( nullptr )
 {
     ReadConfigFile(FWname.c_str());
     num_modules = 0;
@@ -820,8 +821,8 @@ bool XIAControl::StartLMR()
     }
     termWrite->info("List mode started OK");
 
-    if ( ScalerTransmitter::Get() )
-        ScalerTransmitter::Get()->Start();
+    if ( transmitter )
+        transmitter->Start();
 
     return true;
 }
@@ -927,8 +928,8 @@ bool XIAControl::WriteScalers()
         }
     }
 
-    if ( ScalerTransmitter::Get() ){
-        ScalerTransmitter::Get()->ProcessScalers(scalers);
+    if ( transmitter ){
+        transmitter->ProcessScalers(scalers);
     }
 
     return true;

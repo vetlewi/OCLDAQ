@@ -26,16 +26,16 @@
 #define CHANEVENTSA_ADDRESS 0x0004a41f
 #define CHANEVENTSB_ADDRESS 0x0004a42f
 
-ScalerTransmitter *ScalerTransmitter::instance = nullptr;
+//ScalerTransmitter *ScalerTransmitter::instance = nullptr;
 
 ScalerTransmitter::ScalerTransmitter(const char *url, const int *ts_factor)
     : db( influxdb::InfluxDBFactory::Get(url) )
 {
 
-    if ( instance != nullptr )
+    /*if ( instance != nullptr )
         throw std::runtime_error("ScalerTransmitter already set!");
     else
-        instance = this;
+        instance = this;*/
 
     if ( ts_factor != nullptr )
         std::copy(ts_factor, ts_factor+SCALER_LENGTH, timestamp_factor.begin());
@@ -43,7 +43,7 @@ ScalerTransmitter::ScalerTransmitter(const char *url, const int *ts_factor)
 
 ScalerTransmitter::~ScalerTransmitter()
 {
-    instance = nullptr;
+    //instance = nullptr;
 }
 
 void ScalerTransmitter::Start()
@@ -155,7 +155,7 @@ void ScalerTransmitter::SetTS_Factor(const int *ts_factor)
         std::copy(ts_factor, ts_factor+SCALER_LENGTH, timestamp_factor.begin());
 }
 
-ScalerTransmitter *ScalerTransmitter::Get()
+/*ScalerTransmitter *ScalerTransmitter::Get()
 {
     if ( instance == nullptr )
         throw std::runtime_error("Instance not created properly.");
@@ -168,4 +168,4 @@ ScalerTransmitter *ScalerTransmitter::Get(const char *url, const int *ts_factor)
         throw std::runtime_error("Instance already created.");
     instance = new ScalerTransmitter(url, ts_factor);
     return instance;
-}
+}*/

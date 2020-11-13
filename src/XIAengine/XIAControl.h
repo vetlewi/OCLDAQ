@@ -24,6 +24,7 @@
 #include <spdlog/spdlog.h>
 
 //#include "FileScalerWriter.h"
+#include "ScalerTransmitter.h"
 
 class WriteTerminal;
 
@@ -101,6 +102,11 @@ public:
     // Check the run status
     bool XIA_check_status();
 
+    void SetScalerTransmitter(ScalerTransmitter *trs)
+    {
+        transmitter = trs;
+    }
+
     // Ask the class to end the run in the XIA modules.
     // We will also ask for the file where data are stored as we
     // will need to flush all data to this file.
@@ -111,10 +117,10 @@ public:
     bool XIA_reload();
 
     // Get number of XIA modules.
-    inline int GetNumMod() const { return num_modules; }
+    [[nodiscard]] inline int GetNumMod() const { return num_modules; }
 
     // Get the timescale factors
-    inline const int *GetTSfactors() const { return timestamp_factor; }
+    [[nodiscard]] inline const int *GetTSfactors() const { return timestamp_factor; }
 
 private:
 
@@ -123,7 +129,7 @@ private:
 
     // Ordered queue to fill with data as it arrives
     //std::vector<Event_t> sorted_events;
-    std::priority_queue<Event_t, std::vector<Event_t>, std::greater<Event_t> > sorted_events;
+    std::priority_queue<Event_t, std::vector<Event_t>, std::greater<> > sorted_events;
 
     // List of temporary buffers ready for readout.
     std::deque<Temp_Buf_t> ready_bufs;
@@ -256,6 +262,9 @@ private:
 
     // A small test...
     unsigned int *lmdata;
+
+    // Scaler transmitter
+    ScalerTransmitter *transmitter;
 };
 
 #endif // XIACONTROL_H

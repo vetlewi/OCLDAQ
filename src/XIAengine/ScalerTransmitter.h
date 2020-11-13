@@ -19,12 +19,12 @@ public:
     typedef std::array<unsigned int, SCALER_LENGTH> scaler_array_t;
     typedef std::vector<scaler_array_t> scaler_t;
 
-/*!
- * Setup of the transmitter class
- * \param url of the TS database
- * \param ts_factor time scale factor
- */
-ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
+    /*!
+     * Setup of the transmitter class
+     * \param url of the TS database
+     * \param ts_factor time scale factor
+     */
+    explicit ScalerTransmitter(const char *url, const int *ts_factor = nullptr);
 
 private:
 
@@ -41,7 +41,7 @@ private:
     std::chrono::time_point<std::chrono::system_clock> start_time;
 
     //! Make class own its own instance
-    static ScalerTransmitter *instance;
+    //static ScalerTransmitter *instance;
 
 
 public:
@@ -63,10 +63,10 @@ public:
     void ProcessScalers(const scaler_t &scalers);
 
     //! Static method to get the ONE (and only one) instance of this class
-    static ScalerTransmitter *Get();
+    //static ScalerTransmitter *Get();
 
     //! Get (and construct)
-    static ScalerTransmitter *Get(const char *url, const int *ts_factor = nullptr);
+    //static ScalerTransmitter *Get(const char *url, const int *ts_factor = nullptr);
 
 };
 
