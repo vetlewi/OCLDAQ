@@ -523,6 +523,10 @@ int main(int argc, char* argv[])
     }
     xiacontr->SetScalerTransmitter(transmitter);
 
+    // We will now boot before anything else will happend.
+    if ( !xiacontr->XIA_boot_all() )
+        leaveprog = 'y';
+
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);
     if( !buffer ) {
@@ -534,10 +538,6 @@ int main(int argc, char* argv[])
     unsigned int* data    = buffer + buffer[ENGINE_DATA_START];
     const unsigned int datalen = buffer[ENGINE_DATA_SIZE];
     /*const unsigned int*/ datalen_char = datalen*sizeof(int);
-
-    // We will now boot before anything else will happend.
-    if ( !xiacontr->XIA_boot_all() )
-        leaveprog = 'y';
 
 
     // Now we can start the GUI.
