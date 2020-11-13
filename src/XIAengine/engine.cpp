@@ -509,6 +509,11 @@ int main(int argc, char* argv[])
         PXIMapping[i] = plxMappings_ui[i];
 
     xiacontr = new XIAControl(logger, PXIMapping);
+
+    // We will now boot before anything else will happend.
+    if ( !xiacontr->XIA_boot_all() )
+        leaveprog = 'y';
+
 #ifdef MULTITHREAD
     std::thread poll_thread(static const int MAX_BUFFER_COUNT = 8192; // max 2GB files[](){ xiacontr->XIAthread(); } );
 #endif // MULTITHREAD
@@ -522,10 +527,6 @@ int main(int argc, char* argv[])
         }
     }
     xiacontr->SetScalerTransmitter(transmitter);
-
-    // We will now boot before anything else will happend.
-    if ( !xiacontr->XIA_boot_all() )
-        leaveprog = 'y';
 
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);
