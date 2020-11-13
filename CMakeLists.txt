@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
-project(OCLDAQ VERSION 1.0.0 LANGUAGES CXX C)
+project(OCLDAQ
+        VERSION 1.0.0
+        LANGUAGES CXX C)
 
 #Make sure that custom modules are found
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
@@ -12,6 +14,7 @@ option(ENABLE_RUPDATE "Build target rupdate" ON)
 option(ENABLE_XIAENGINE "Build target XIAengine" ON)
 option(ENABLE_XIAONLINE "Build target XIAonline" ON)
 option(ENABLE_HISTDUMPER "Build target HistDumper" ON)
+option(ENABLE_XIARESTENGINE "Build target XIARestEngine" OFF)
 
 
 option(ENABLE_DOC "Generates the documentation target" OFF)
@@ -270,6 +273,9 @@ if ( ENABLE_XIAENGINE )
                 -L/opt/xia/current -L/opt/plx/current/PlxSdk/PlxApi/Library)
     endif()
 
+endif()
+
+if ( ENABLE_XIARESTENGINE )
 
     add_executable(XIARestEngine
             src/XIARestEngine/XIAinterface.cpp

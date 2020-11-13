@@ -2,5 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/cereal" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/cpp-httplib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/influxdb-cxx" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/jthread" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/spdlog" vcs="Git" />
   </component>
 </project>
