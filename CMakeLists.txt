@@ -78,8 +78,11 @@ endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/influxdb-cxx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cpp-httplib)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cereal)
+
+if ( ENABLE_XIARESTENGINE )
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cpp-httplib)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/cereal)
+endif()
 
 ##############################################
 # Create target and set properties
