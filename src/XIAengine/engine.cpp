@@ -519,7 +519,6 @@ int main(int argc, char* argv[])
             transmitter = ScalerTransmitter::Get(scaler_server.c_str(), xiacontr->GetTSfactors());
         } catch( const std::exception &e ){
             std::cerr << "Unable to connect to influx database, error: " << e.what() << std::endl;
-            delete transmitter;
         }
     }
 

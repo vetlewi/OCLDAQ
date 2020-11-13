@@ -578,7 +578,6 @@ bool XIAControl::GetFirmwareFile(const unsigned short &revision, const unsigned 
     }
 
     // Search our map for the firmware files.
-    termWrite->debug("Using firmware files %s, %s, %s, %s\n", key_Com, key_SPFPGA, key_DSPcode, key_DSPVar);
     if ( firmwares.find(key_Com) == firmwares.end() ){
         sprintf(errmsg, "Missing firmware file '%s'\n", key_Com.c_str());
         termWrite->error(errmsg);
