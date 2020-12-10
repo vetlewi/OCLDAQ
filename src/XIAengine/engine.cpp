@@ -1,11 +1,12 @@
 
-#include "engine_shm.h"
-#include "net_control.h"
-#include "utilities.h"
-#include "run_command.h"
+#include <engine_shm.h>
+#include <net_control.h>
+#include <utilities.h>
+#include <run_command.h>
 
 #include "WriteTerminal.h"
 #include "XIAControl.h"
+#include "Functions.h"
 
 #include "mainwindow.h"
 
@@ -16,14 +17,20 @@
 #include <sstream>
 #include <string>
 
-#include <thread>
-
 #include <cerrno>
 #include <csignal>
 #include <cstdlib>
 #include <cstdio>
 #include <sys/time.h>
 #include <unistd.h>
+
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/async_logger.h>
+#include <spdlog/async.h>
+#include <spdlog/spdlog.h>
+
+#include <CLI/CLI.hpp>
 
 #if _FILE_OFFSET_BITS != 64
 #error must compile with _FILE_OFFSET_BITS == 64
@@ -406,20 +413,51 @@ static void cb_disconnected(line_channel*, void*)
 
 int main(int argc, char* argv[])
 {
-    if( argc <= 1 ) {
-        std::cerr << "engine runs with PXI slots as input parameters" << std::endl;
-        std::cerr << argv[0] << " 2 3 4 5" << std::endl;
-        exit(EXIT_FAILURE);
+
+
+
+    // Setup logger
+    try {
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("xiaengine_log.txt");
+
+        console_sink->set_level(spdlog::level::info);
+        file_sink->set_level(spdlog::level::info);
+
+        spdlog::sinks_init_list sink_list = {console_sink, file_sink};
+        spdlog::init_thread_pool(256, 1);
+        auto logger = std::make_shared<spdlog::async_logger>("logger", sink_list, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
+        spdlog::set_default_logger(logger);
+    } catch (const spdlog::spdlog_ex& ex)
+    {
+        std::cout << "Log initialization failed: " << ex.what() << std::endl;
+        return 0;
+    }
+
+    unsigned short PXIMapping[PRESET_MAX_MODULES];
+    try {
+        auto mapping = ReadSlotMap();
+        if ( mapping.size() >= PRESET_MAX_MODULES ){
+            std::string errmsg = "Too many PCI devices found, found " + std::to_string(mapping.size());
+            throw std::runtime_error(errmsg);
+        }
+        int set = 0;
+        for ( auto &val : mapping )
+            PXIMapping[set++] = val;
+    } catch ( const std::exception &ex ){
+        spdlog::error("Failed to read PXI mapping: {}, try manual PXI mapping.", ex.what());
+        return 0;
     }
 
     signal(SIGINT, keyb_int); // set up interrupt handler (Ctrl-C)
     signal(SIGPIPE, SIG_IGN);
 
+
     commands = new command_list();
     if( (commands->read("acq_master_commands.txt")) ) {
-        std::cerr << "Using commands from acq_master_commands.txt." << std::endl;
+        spdlog::info("Using commands from acq_master_commands.txt.");
     } else {
-        std::cerr << "Using default commands." << std::endl;
+        spdlog::error("Could not read commands from acq_master_commands.txt, using default commands.");
         commands->read_text(
             "mama     = xterm -bg moccasin -fg black -geometry 80x25+5-60 -e mama\n"
             "rupdate  = rupdate\n"
@@ -454,12 +492,6 @@ int main(int argc, char* argv[])
 
     // sleep a little to avoid repeated timestamps
     usleep(10);
-
-    unsigned short PXIMapping[PRESET_MAX_MODULES];
-    for (int i = 0 ; i < PRESET_MAX_MODULES ; ++i)
-        PXIMapping[i] = 0;
-    for (int i = 1 ; i < argc ; ++i)
-        PXIMapping[i] = atoi(argv[i]);
 
     xiacontr = new XIAControl(&termWrite, PXIMapping);
 
