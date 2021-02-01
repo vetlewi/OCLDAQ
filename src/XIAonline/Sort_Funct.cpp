@@ -26,7 +26,7 @@ void sort_singles(const std::vector<word_t> &buffer)
             if (energy > 1295 && energy < 1370) {
                 for (auto &j : buffer) {
                     dinfo2 = GetDetector(j.address);
-                    if (dinfo2.type == labr && dinfo2.detectorNum == 1) {
+                    if (dinfo2.type == labr && dinfo2.detectorNum == 25) {
                         spec_fill(LABRCSP_ID, j.adcdata, 0);
                         double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
                         if (!i.cfdfail && !j.cfdfail)
