@@ -33,9 +33,11 @@ bool read_gainshifts(calibration_t& calib, std::istream& fp)
     // read gain and shift values from stream
     if( !fp )
         return false;
-
-    for(double & i : calib.gain_labr)
+    int j = 0;
+    for(double & i : calib.gain_labr) {
         fp >> i;
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
+    }
     for(double & i : calib.gain_de)
         fp >> i;
     for(double & i : calib.gain_e)
