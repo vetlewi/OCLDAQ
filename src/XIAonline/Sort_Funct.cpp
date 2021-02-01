@@ -33,7 +33,7 @@ void sort_singles(const std::vector<word_t> &buffer)
                     dinfo2 = GetDetector(j.address);
                     energy2 = calibration.gain_labr[dinfo2.detectorNum]*(j.adcdata + drand48() - 0.5);
                     energy2 += calibration.shift_labr[dinfo2.detectorNum];
-                    if (dinfo2.type == labr && dinfo2.detectorNum == 25) {
+                    if (dinfo2.type == labr && dinfo2.detectorNum == 1) {
                         double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
                         if ( !i.cfdfail && !j.cfdfail )
                             spec_fill(EDESP_ID, j.adcdata, tim+1000);
