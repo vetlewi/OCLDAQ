@@ -36,14 +36,6 @@ void sort_singles(const std::vector<word_t> &buffer)
                     if (dinfo2.type == labr && dinfo2.detectorNum == 25) {
                         spec_fill(LABRCSP_ID, j.adcdata, 0);
                         double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
-                        if (!i.cfdfail && !j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim + 16384, 1);
-                        else if (!i.cfdfail && j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim + 16384, 2);
-                        else if (i.cfdfail && !j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim + 16384, 3);
-                        else
-                            spec_fill(LABRCSP_ID, tim + 16384, 4);
                         if ( !i.cfdfail && !j.cfdfail )
                             spec_fill(EDESP_ID, j.adcdata, tim+1000);
                         else if ( !i.cfdfail && j.cfdfail )
@@ -58,6 +50,9 @@ void sort_singles(const std::vector<word_t> &buffer)
         switch (dinfo.type) {
         case labr:
             spec_fill(LABRSP_ID, i.adcdata, dinfo.detectorNum);
+            energy = calibration.gain_labr[dinfo.detectorNum]*(i.adcdata + drand48() - 0.5);
+            energy += calibration.shift_labr[dinfo.detectorNum];
+            spec_fill(LABRCSP_ID, energy, dinfo.detectorNum);
             if ( i.cfdfail )
                 spec_fill(LABRCFD_ID, i.adcdata, dinfo.detectorNum);
             break;
