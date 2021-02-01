@@ -37,8 +37,10 @@ void sort_singles(const std::vector<word_t> &buffer)
                             spec_fill(LABRCSP_ID, tim + 16384, 3);
                         else
                             spec_fill(LABRCSP_ID, tim + 16384, 4);
-
-                        spec_fill(EDESS_ID, j.adcdata, tim+1000);
+                        if ( !i.cfdfail && !j.cfdfail )
+                            spec_fill(EDESS_ID, j.adcdata*2000/(16384*2), tim+1000);
+                        else if ( !i.cfdfail && j.cfdfail )
+                            spec_fill(EDESS_ID, j.adcdata*2000/(16384*2), tim+1000);
 
                     }
                 }
