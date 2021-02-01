@@ -20,16 +20,19 @@ void sort_singles(const std::vector<word_t> &buffer)
 {
 
     DetectorInfo_t dinfo, dinfo2;
-    double energy;
+    double energy, energy2;
     for (const auto & i : buffer){
 
         dinfo = GetDetector(i.address);
 
         if ( dinfo.type == labr && dinfo.detectorNum == 0 ) {
-            energy = 0.379 * i.adcdata - 9.189;
+            energy = calibration.gain_labr[dinfo.detectorNum]*(i.adcdata + drand48() - 0.5);
+            energy += calibration.shift_labr[dinfo.detectorNum];
             if (energy > 1295 && energy < 1370) {
                 for (auto &j : buffer) {
                     dinfo2 = GetDetector(j.address);
+                    energy2 = calibration.gain_labr[dinfo2.detectorNum]*(j.adcdata + drand48() - 0.5);
+                    energy2 += calibration.shift_labr[dinfo2.detectorNum];
                     if (dinfo2.type == labr && dinfo2.detectorNum == 25) {
                         spec_fill(LABRCSP_ID, j.adcdata, 0);
                         double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
