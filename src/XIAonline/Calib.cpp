@@ -26,6 +26,7 @@ void reset_gainshifts(calibration_t& calib)
     }
 }
 
+
 bool read_gainshifts(calibration_t& calib, std::istream& fp)
 {
     reset_gainshifts(calib);
@@ -36,16 +37,30 @@ bool read_gainshifts(calibration_t& calib, std::istream& fp)
     int j = 0;
     for(double & i : calib.gain_labr) {
         fp >> i;
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
     }
-    for(double & i : calib.gain_de)
+    j = 0;
+    for(double & i : calib.gain_de){
         fp >> i;
-    for(double & i : calib.gain_e)
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
+    }
+    j = 0;
+    for(double & i : calib.gain_e){
         fp >> i;
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
+    }
 
-    for(double & i : calib.shift_labr)
+    j = 0;
+    for(double & i : calib.shift_labr){
         fp >> i;
-    for(double & i : calib.shift_de)
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
+    }
+    j = 0;
+    for(double & i : calib.shift_de) {
         fp >> i;
+        std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
+    }
+    j = 0;
     for(double & i : calib.shift_e){
         fp >> i;
         std::cout << "Reading gain #" << j++ << ": " << i << std::endl;
