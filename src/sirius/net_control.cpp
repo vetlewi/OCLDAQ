@@ -17,7 +17,7 @@
 #include <string>
 
 //#include "debug.h"
-
+#define DBGP(x)
 #define DBGL DBGP("")
 #define DBGV(x) DBGP(": " #x "='" << x << "'")
 
