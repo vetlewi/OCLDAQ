@@ -63,7 +63,7 @@ extern "C" {
 	
 	PIXIE16SYS_EXPORT int Pixie_InitSystem (
 		unsigned short NumModules,
-		unsigned short *PXISlotMap,
+		const unsigned short *PXISlotMap,
 		unsigned short OfflineMode );
 	
 	PIXIE16SYS_EXPORT int Pixie_ClosePCIDevices (

@@ -79,7 +79,7 @@
 
 PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16InitSystem (
 	unsigned short NumModules,    // total number of Pixie16 modules in the system
-	unsigned short *PXISlotMap,   // an array containing the PXI slot number for each pixie16 module
+	const unsigned short *PXISlotMap,   // an array containing the PXI slot number for each pixie16 module
 	unsigned short OfflineMode )  // specify if the system is in offline mode
 {
 	int retval;    // return value
@@ -320,12 +320,12 @@ PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16ReadModuleInfo (
 ****************************************************************/
 
 PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16BootModule (
-	char *ComFPGAConfigFile,      // name of communications FPGA configuration file
-	char *SPFPGAConfigFile,       // name of signal processing FPGA configuration file
-	char *TrigFPGAConfigFile,     // name of trigger FPGA configuration file
-	char *DSPCodeFile,            // name of executable code file for digital signal processor (DSP)
-	char *DSPParFile,             // name of DSP parameter file
-	char *DSPVarFile,             // name of DSP variable names file
+	const char *ComFPGAConfigFile,      // name of communications FPGA configuration file
+	const char *SPFPGAConfigFile,       // name of signal processing FPGA configuration file
+	const char *TrigFPGAConfigFile,     // name of trigger FPGA configuration file
+	const char *DSPCodeFile,            // name of executable code file for digital signal processor (DSP)
+	const char *DSPParFile,             // name of DSP parameter file
+	const char *DSPVarFile,             // name of DSP variable names file
 	unsigned short ModNum,        // pixie module number
 	unsigned short BootPattern )  // boot pattern bit mask
 {
@@ -2419,7 +2419,7 @@ PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16BLcutFinder (
 
 PIXIE16APP_EXPORT int PIXIE16APP_API Pixie16TauFinder (
 	unsigned short ModNum,   // Pixie module number
-	double         *Tau )    // 16 returned Tau values, in µs
+	double         *Tau )    // 16 returned Tau values, in ï¿½s
 {
 
 	char           ErrMSG[MAX_ERRMSG_LENGTH];

@@ -6,7 +6,7 @@
 
 #include "WriteTerminal.h"
 #include "XIAControl.h"
-#include "Functions.h"
+#include "functions.h"
 
 #include "mainwindow.h"
 
@@ -414,15 +414,42 @@ static void cb_disconnected(line_channel*, void*)
 int main(int argc, char* argv[])
 {
 
+    CLI::App app{"XIAengine is the producer frontend responsible for communicating with the XIA modules."};
 
+    std::vector<unsigned short> mapping;
+    app.add_option("-m,--map", mapping,
+                   "Set PXI mapping manually")->default_val(std::vector<unsigned short>());
+
+    std::string firmware_ini;
+    app.add_option("-f,--firmware", firmware_ini,
+                   "Firmware mapping")->default_val("XIA_Firmware.ini");
+
+    std::string command_file;
+    app.add_option("-c,--command", command_file,
+                   "Command file")->default_val("acq_master_commands.txt");
+
+    std::string settings_file;
+    app.add_option("-s,--settings", settings_file,
+                   "Settings file")->default_val("settings.set");
+
+    bool verbose = false;
+    app.add_flag("-v,--verbose", verbose, "Write out all messages to stdout");
+
+    bool offline = false;
+    app.add_flag("-o,--offline", offline, "Indicate if offline run");
 
     // Setup logger
     try {
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("xiaengine_log.txt");
 
-        console_sink->set_level(spdlog::level::info);
-        file_sink->set_level(spdlog::level::info);
+        if ( verbose ) {
+            console_sink->set_level(spdlog::level::debug);
+            file_sink->set_level(spdlog::level::debug);
+        } else {
+            console_sink->set_level(spdlog::level::info);
+            file_sink->set_level(spdlog::level::info);
+        }
 
         spdlog::sinks_init_list sink_list = {console_sink, file_sink};
         spdlog::init_thread_pool(256, 1);
@@ -436,7 +463,10 @@ int main(int argc, char* argv[])
 
     unsigned short PXIMapping[PRESET_MAX_MODULES];
     try {
-        auto mapping = ReadSlotMap();
+
+        if ( mapping.empty() )
+            mapping = ReadSlotMap();
+
         if ( mapping.size() >= PRESET_MAX_MODULES ){
             std::string errmsg = "Too many PCI devices found, found " + std::to_string(mapping.size());
             throw std::runtime_error(errmsg);
@@ -454,8 +484,8 @@ int main(int argc, char* argv[])
 
 
     commands = new command_list();
-    if( (commands->read("acq_master_commands.txt")) ) {
-        spdlog::info("Using commands from acq_master_commands.txt.");
+    if( (commands->read(command_file.c_str())) ) {
+        spdlog::info("Using commands from {}.", command_file);
     } else {
         spdlog::error("Could not read commands from acq_master_commands.txt, using default commands.");
         commands->read_text(
@@ -493,13 +523,11 @@ int main(int argc, char* argv[])
     // sleep a little to avoid repeated timestamps
     usleep(10);
 
-    xiacontr = new XIAControl(&termWrite, PXIMapping);
-
     // attach shared memory and initialize some variables
     unsigned int* buffer  = engine_shm_attach(true);
     if( !buffer ) {
-        std::cerr << "engine: Failed to attach shared memory." << std::endl;
-        exit(EXIT_FAILURE);
+        spdlog::error("Failed to attach shared memory.");
+        return -1;
     }
     unsigned int* time_us       = &buffer[ENGINE_TIME_US];
     unsigned int* time_s        = &buffer[ENGINE_TIME_S ];
@@ -508,10 +536,12 @@ int main(int argc, char* argv[])
     const unsigned int datalen  = buffer[ENGINE_DATA_SIZE];
     /*const unsigned int*/ datalen_char = datalen*sizeof(int);
 
+    // Starting XIA interface!
+    xiacontr = new XIAControl(&termWrite, PXIMapping);
+
     // We will now boot before anything else will happend.
     if ( !xiacontr->XIA_boot_all() )
         leaveprog = 'y';
-
 
     // Now we can start the GUI.
     globargc = argc;
@@ -582,6 +612,7 @@ int main(int argc, char* argv[])
 
 
     delete commands;
+    delete xiacontr;
     return 0;
 }
 

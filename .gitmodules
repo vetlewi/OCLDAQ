@@ -19,3 +19,6 @@
 [submodule "external/doctest"]
 	path = external/doctest
 	url = https://github.com/onqtam/doctest.git
+[submodule "external/concurrentqueue"]
+	path = external/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

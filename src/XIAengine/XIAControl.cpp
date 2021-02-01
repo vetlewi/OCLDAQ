@@ -15,6 +15,8 @@
 #include <cstring>
 #include <sys/time.h>
 
+#include <spdlog/spdlog.h>
+
 #include "pixie16app_export.h"
 #include "pixie16sys_export.h"
 
@@ -54,10 +56,11 @@ bool next_line(std::istream &in, std::string &line)
 
 
 XIAControl::XIAControl(WriteTerminal *writeTerm,
-                       const unsigned short PXImap[PRESET_MAX_MODULES],
+                       const std::vector<unsigned short> &PXImap,
                        const std::string &FWname,
                        const std::string &SETname)
     : termWrite( writeTerm )
+    , logger( spdlog::get("logger") )
     , data_avalible( 0 )
     , is_initialized( false )
     , is_booted( false )
@@ -74,6 +77,59 @@ XIAControl::XIAControl(WriteTerminal *writeTerm,
     lmdata = (unsigned int *)malloc(sizeof(unsigned int) * EXTERNAL_FIFO_LENGTH);
 }
 
+XIAControl::XIAControl(const std::vector<unsigned short> &PXImap, const char *fw,
+                       std::string settings, const bool &offline)
+    : num_modules( PXImap.size() )
+    , firmware( fw )
+    , settings_file(std::move( settings ))
+{
+    assert( num_modules <= PRESET_MAX_MODULES );
+
+    // Initialize and boot modules
+    int retval = Pixie16InitSystem(PXImap.size(), PXImap.data(), ( offline ) ? 1 : 0);
+    if ( retval < 0 ){
+        std::string err = "Unable to initialize the system, retval=" + std::to_string(retval);
+        logger->error(err);
+        throw std::runtime_error(err);
+    }
+
+    for ( unsigned short i = 0 ; i < num_modules ; ++i ){
+        logger->debug("Trying to boot module {}", i);
+        BootModule(i);
+    }
+
+
+}
+
+void XIAControl::BootModule(const unsigned short &module)
+{
+    fwmap::xia_module_t key{};
+    unsigned int sernum;
+
+    auto retval = Pixie16ReadModuleInfo(module, &key.rev, &sernum, &key.bit, &key.mhz);
+    if ( retval < 0 ){
+        std::string err = "Pixie16ReadModuleInfo failed, retval=" + std::to_string(retval);
+        logger->error(err);
+        throw std::runtime_error(err);
+    }
+
+    logger->info("Module {}:\n\tRevision: {0:x}\n\tSerial num: {0:d}\n\tBits: {0:d}\n\tMHz: {0:d}",
+                 module, key.rev, sernum, key.bit, key.mhz);
+
+    logger->debug("Fetching firmware for module {}", module);
+    auto fw = firmware.GetFW(key);
+
+    logger->debug("Booting module {} with firmware files:\n\tComFPGA: {}\n\tSPFPGA: {}\n\tDSPCode: {}\n\tDSPVar: {}\n\tSettings: {}",
+                  fw.ComFPGA, fw.SPFPGA, fw.DSPCode, fw.DSPVar, settings_file);
+    retval = Pixie16BootModule(fw.ComFPGA.c_str(), fw.SPFPGA.c_str(), "",
+                               fw.DSPCode.c_str(), settings_file.c_str(), fw.DSPVar.c_str(), module, 0xF);
+    if ( retval < 0 ){
+        std::string err = "Pixie16BootModule failed, reval=" + std::to_string(retval);
+        logger->error(err);
+        throw std::runtime_error(err);
+    }
+}
+
 XIAControl::~XIAControl()
 {
     free(lmdata);
@@ -81,7 +137,7 @@ XIAControl::~XIAControl()
 }
 
 
-bool XIAControl::XIA_check_buffer(int bufsize)
+bool XIAControl::XIA_check_buffer(size_t bufsize)
 {
     // Check that we are actually running.
     if (!is_running)
@@ -103,7 +159,9 @@ bool XIAControl::XIA_check_buffer(int bufsize)
     }
 
     // Here we decide if we have one or more buffers for the engine to process.
-    int have_data = data_avalible + overflow_queue.size();
+    size_t have_data = data_avalible + overflow_queue.size();
+    if ( have_data < XIA_MIN_READOUT )
+        return false;
     have_data -= XIA_MIN_READOUT;
     if ( have_data < bufsize) // First test to determine if we have enough data to make an actual buffer.
         return false;
@@ -112,10 +170,12 @@ bool XIAControl::XIA_check_buffer(int bufsize)
 
 
 
-bool XIAControl::XIA_fetch_buffer(uint32_t *buffer, int bufsize, unsigned int *first_header)
+bool XIAControl::XIA_fetch_buffer(uint32_t *buffer, size_t bufsize, unsigned int *first_header)
 {
     int current_pos = 0;
-    int have_data = data_avalible + overflow_queue.size();
+    size_t have_data = data_avalible + overflow_queue.size();
+    if ( have_data < XIA_MIN_READOUT )
+        return false;
     have_data -= XIA_MIN_READOUT;
 
     // This function should NEVER be called unless we have

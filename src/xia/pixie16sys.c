@@ -87,7 +87,7 @@ char *PCISysIniFile = {"pxisys.ini"};
 *
 ****************************************************************/
 
-int Pixie_InitSystem (unsigned short NumModules, unsigned short *PXISlotMap, unsigned short OfflineMode)
+int Pixie_InitSystem (unsigned short NumModules, const unsigned short *PXISlotMap, unsigned short OfflineMode)
 {	
 	PLX_DEVICE_KEY    DeviceKey;
 	PLX_STATUS        rc;

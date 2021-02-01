@@ -9,6 +9,7 @@ add_subdirectory(cereal EXCLUDE_FROM_ALL)
 add_subdirectory(CLI11 EXCLUDE_FROM_ALL)
 add_subdirectory(cppzmq EXCLUDE_FROM_ALL)
 add_subdirectory(readerwriterqueue EXCLUDE_FROM_ALL)
+add_subdirectory(concurrentqueue EXCLUDE_FROM_ALL)
 
 #Use spdlog for logging, and tell it to use our version of fmtlib
 add_subdirectory(spdlog EXCLUDE_FROM_ALL)

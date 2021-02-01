@@ -17,6 +17,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <spdlog/logger.h>
+
+#include "fwmap.h"
 class WriteTerminal;
 
 #define XIA_MIN_READOUT 65536
@@ -42,15 +45,15 @@ class XIAControl
 {
 private:
 
-    // Object responsible for I/O to the stdout & stderr
-    WriteTerminal *termWrite;
+    // Pointer to logger object
+    std::shared_ptr<spdlog::logger> logger;
 
     // Ordered queue to fill with data as it arrives
     //std::vector<Event_t> sorted_events;
     std::priority_queue<Event_t, std::vector<Event_t>, std::greater<Event_t> > sorted_events;
 
     // Number of 32-bit words in the queue
-    int data_avalible;
+    size_t data_avalible;
 
     // Most recent timestamp of each module
     int64_t most_recent_t[PRESET_MAX_MODULES];
@@ -74,7 +77,7 @@ private:
     std::string settings_file;
 
     // Number of modules
-    int num_modules;
+    size_t num_modules;
 
     // PXI mapping of the modules.
     unsigned short PXISlotMap[PRESET_MAX_MODULES];
@@ -86,8 +89,8 @@ private:
     // 500 MHz -> 10 ns
     int timestamp_factor[PRESET_MAX_MODULES];
 
-    // Mapping of XIA firmware data.
-    std::map<std::string, std::string> firmwares;
+    //! Object storing the firmware mapping.
+    fwmap firmware;
 
     // Temporary buffer for strings
     char errmsg[1024];
@@ -103,9 +106,17 @@ private:
 public:
 
     XIAControl(WriteTerminal *writeTerm,
-               const unsigned short PXImap[PRESET_MAX_MODULES], /*!< PXI mapping                */
-               const std::string &FWname="XIA_Firmware.txt",    /*!< Path to firmware settings  */
-               const std::string &SETname="settings.set"        /*!< Path to settings file      */);
+               const std::vector<unsigned short> &PXImap,     /*!< PXI mapping                */
+               const std::string &FWname="XIA_Firmware.txt",  /*!< Path to firmware settings  */
+               const std::string &SETname="settings.set"      /*!< Path to settings file      */);
+
+
+    XIAControl(const std::vector<unsigned short> &PXImap,   /*!< PXI mapping.                       */
+               const char *fw_file,                         /*!< Firmware configuration file.       */
+               std::string settings,                        /*!< Settings file for the modules.     */
+               const bool &offline                          /*!< Indicate if we run in offline mode.*/);
+
+
 
 
     // Destructor. Quite important for this
@@ -119,10 +130,10 @@ public:
 
     // Poll to check if we have enough data to fill a buffer
     // (note, this will be false until we have 65536 32-bit words of data)
-    bool XIA_check_buffer(int bufsize);
+    bool XIA_check_buffer(size_t bufsize);
 
     // Ask for a buffer of data to be committed.
-    bool XIA_fetch_buffer(uint32_t *buffer, int bufsize, unsigned int *first_header);
+    bool XIA_fetch_buffer(uint32_t *buffer, size_t bufsize, unsigned int *first_header);
 
     // Ask the class to boot the XIA modules.
     bool XIA_boot_all();
@@ -164,6 +175,9 @@ private:
                          char *SPFPGA,                      /*!< String to fill with path to SPFPGA firmware file   */
                          char *DSPcode,                     /*!< String to fill with path to DSPcode file           */
                          char *DSPVar                       /*!< String to fill with path to DSPvar file            */);
+
+    // Boot an XIA module
+    void BootModule(const unsigned short &module);
 
     // Function to boot the XIA modules.
     bool BootXIA();

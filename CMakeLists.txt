@@ -123,6 +123,17 @@ else()
     target_link_libraries(xia PUBLIC m dl rt ${PROJECT_NAME}::plx)
 endif()
 
+###########     MergeSorter     #############
+# This is the XIA libraries from XIA SDK
+
+add_library(mergesorter INTERFACE)
+
+target_include_directories(mergesorter INTERFACE
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/mergesorter>)
+target_link_libraries(mergesorter INTERFACE concurrentqueue)
+add_library(${PROJECT_NAME}::mergesorter ALIAS mergesorter)
+
 ##############     master     ################
 # This is the GUI for starting/stopping runs.
 
@@ -231,36 +242,19 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_library(XIAengine_private STATIC
+add_executable(XIAengine
+    src/XIAengine/engine.cpp
     src/XIAengine/functions.cpp
     src/XIAengine/mainwindow.cpp
     src/XIAengine/WriteTerminal.cpp
     src/XIAengine/XIAControl.cpp
     src/XIAengine/mainwindow.ui
+    src/XIAengine/fwmap.cpp
+    src/XIAengine/XIAReadoutQueue.cpp
 )
-target_compile_definitions(XIAengine_private PUBLIC BUILD_GUI=1 _FILE_OFFSET_BITS=64 REMOVE_TRACE=1)
-target_compile_options(XIAengine_private PUBLIC -m64)
-target_include_directories(XIAengine_private
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
-)
-set_target_properties(XIAengine_private PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
 
-target_link_libraries(XIAengine_private PUBLIC
-        ${PROJECT_NAME}::sirius
-        ${PROJECT_NAME}::xia
-        ${PROJECT_NAME}::plx
-        spdlog::spdlog
-        inih::inih
-        Qt5::Widgets)
-
-add_executable(XIAengine
-    src/XIAengine/engine.cpp
-)
 target_compile_options(XIAengine PRIVATE -m64)
+target_compile_definitions(XIAengine PUBLIC BUILD_GUI=1 _FILE_OFFSET_BITS=64 REMOVE_TRACE=1)
 target_include_directories(XIAengine
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/XIAengine
@@ -271,7 +265,15 @@ set_target_properties(XIAengine PROPERTIES
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO)
 
-target_link_libraries(XIAengine XIAengine_private)
+target_link_libraries(XIAengine
+        ${PROJECT_NAME}::sirius
+        ${PROJECT_NAME}::xia
+        ${PROJECT_NAME}::plx
+        ${PROJECT_NAME}::mergesorter
+        spdlog::spdlog
+        inih::inih
+        CLI11::CLI11
+        Qt5::Widgets)
 
 ##########################################
 ###############    TESTS   ###############
