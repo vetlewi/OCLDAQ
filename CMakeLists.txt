@@ -97,7 +97,7 @@ add_executable(XIAonline
     src/XIAonline/Unpacker.cpp
     src/XIAonline/XIA_CFD.cpp
     src/XIAonline/publisher.cpp
-    src/XIAonline/publisher.h)
+    src/XIAonline/publisher.h src/XIAonline/Calib.h src/XIAonline/Calib.cpp)
 
 target_include_directories(XIAonline
         PRIVATE

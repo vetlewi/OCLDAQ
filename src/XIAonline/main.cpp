@@ -11,6 +11,7 @@
 #include "net_control.h"
 #include "sort_spectra.h"
 #include "utilities.h"
+#include "Calib.h"
 
 
 #include "Event.h"
@@ -167,6 +168,36 @@ static void cb_disconnected(line_channel*, void*)
     std::cout << "acq_sort: client disconnected" << std::endl;
 }
 
+// ########################################################################
+
+static void broadcast_gainshift(line_channel* lc=0)
+{
+    std::ostringstream o;
+    o << "201 status_gain " << format_gainshift(*GetCalibration()) << '\n';
+
+    send_1_or_all(o.str(), lc);
+}
+
+// ########################################################################
+
+static void command_status_gain(line_channel* lc, const std::string&, void*)
+{
+    broadcast_gainshift(lc);
+}
+
+// ########################################################################
+
+static void command_gain(line_channel* lc, const std::string& cmd, void*)
+{
+    const std::string filename = cmd.substr(5);
+    if( !read_gainshifts(*GetCalibration(), filename) ) {
+        line_sender ls(lc);
+        ls << "402 error_file Problem reading gain/shift from '"<<filename<<"'.\n";
+    } else {
+        broadcast_gainshift();
+    }
+}
+
 int main (int argc, char* argv[])
 {
     /*if( argc != 1 ) {
@@ -203,6 +234,8 @@ int main (int argc, char* argv[])
         {"dump",        0,  command_dump,       0},
         {"status_cwd",  0, command_status_cwd,  0},
         {"change_cwd",  1, command_change_cwd,  0},
+        {"gain", 1, command_gain, 0},
+        { "status_gain",    0, command_status_gain,    0 },
         {0, 0, 0, 0}
     };
 
@@ -222,6 +255,9 @@ int main (int argc, char* argv[])
     const volatile unsigned int* data    = engine_shm + engine_shm[ENGINE_DATA_START];
     const volatile unsigned int  datalen = engine_shm[ENGINE_DATA_SIZE];
     const volatile unsigned int* first_header = (unsigned int*)&engine_shm[ENGINE_FIRST_HEADER];
+
+    // Reset calibration
+    reset_gainshifts(*GetCalibration());
 
     // Attach shared memory
     if ( !spectra_attach_all(true) ){
