@@ -21,21 +21,23 @@ void sort_singles(const std::vector<word_t> &buffer)
 
         dinfo = GetDetector(i.address);
 
-        if ( dinfo.type == labr && dinfo.detectorNum == 0 ){
-            energy = 0.379*i.adcdata - 9.189;
-            for ( auto & j : buffer ){
-                dinfo2 = GetDetector(j.address);
-                if ( dinfo2.type == labr && dinfo2.detectorNum == 1 ){
-                    spec_fill(LABRCSP_ID, j.adcdata, 0);
-                    double tim = (i.timestamp - j.timestamp) + (i.cfdcorr - j.cfdcorr);
-                    if ( !i.cfdfail && !j.cfdfail )
-                        spec_fill(LABRCSP_ID, tim, 1);
-                    else if ( !i.cfdfail && j.cfdfail )
-                        spec_fill(LABRCSP_ID, tim, 2);
-                    else if ( i.cfdfail && !j.cfdfail )
-                        spec_fill(LABRCSP_ID, tim, 3);
-                    else
-                        spec_fill(LABRCSP_ID, tim, 4);
+        if ( dinfo.type == labr && dinfo.detectorNum == 0 ) {
+            energy = 0.379 * i.adcdata - 9.189;
+            if (energy > 1295 && energy < 1370) {
+                for (auto &j : buffer) {
+                    dinfo2 = GetDetector(j.address);
+                    if (dinfo2.type == labr && dinfo2.detectorNum == 1) {
+                        spec_fill(LABRCSP_ID, j.adcdata, 0);
+                        double tim = double(i.timestamp - j.timestamp) + (i.cfdcorr - j.cfdcorr);
+                        if (!i.cfdfail && !j.cfdfail)
+                            spec_fill(LABRCSP_ID, tim, 1);
+                        else if (!i.cfdfail && j.cfdfail)
+                            spec_fill(LABRCSP_ID, tim, 2);
+                        else if (i.cfdfail && !j.cfdfail)
+                            spec_fill(LABRCSP_ID, tim, 3);
+                        else
+                            spec_fill(LABRCSP_ID, tim, 4);
+                    }
                 }
             }
         }
