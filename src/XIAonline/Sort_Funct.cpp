@@ -28,16 +28,18 @@ void sort_singles(const std::vector<word_t> &buffer)
                     dinfo2 = GetDetector(j.address);
                     if (dinfo2.type == labr && dinfo2.detectorNum == 1) {
                         spec_fill(LABRCSP_ID, j.adcdata, 0);
-                        double tim = double(i.timestamp - j.timestamp) + (i.cfdcorr - j.cfdcorr);
-                        tim = 16384 - tim; // Add a small offset
+                        double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
                         if (!i.cfdfail && !j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim, 1);
+                            spec_fill(LABRCSP_ID, tim + 16384, 1);
                         else if (!i.cfdfail && j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim, 2);
+                            spec_fill(LABRCSP_ID, tim + 16384, 2);
                         else if (i.cfdfail && !j.cfdfail)
-                            spec_fill(LABRCSP_ID, tim, 3);
+                            spec_fill(LABRCSP_ID, tim + 16384, 3);
                         else
-                            spec_fill(LABRCSP_ID, tim, 4);
+                            spec_fill(LABRCSP_ID, tim + 16384, 4);
+
+                        spec_fill(EDESS_ID, j.adcdata, tim+1000);
+
                     }
                 }
             }
