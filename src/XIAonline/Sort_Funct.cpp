@@ -36,9 +36,9 @@ void sort_singles(const std::vector<word_t> &buffer)
                     if (dinfo2.type == labr && dinfo2.detectorNum == 1) {
                         double tim = double(j.timestamp - i.timestamp) + (j.cfdcorr - i.cfdcorr);
                         if ( !i.cfdfail && !j.cfdfail )
-                            spec_fill(EDESP_ID, j.adcdata, tim+1000);
+                            spec_fill(EDESP_ID, energy2, tim+1000);
                         else if ( !i.cfdfail && j.cfdfail )
-                            spec_fill(EDESS_ID, j.adcdata, tim+1000);
+                            spec_fill(EDESS_ID, energy2, tim+1000);
 
                     }
                 }
