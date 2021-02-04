@@ -560,6 +560,14 @@ bool XIAControl::StartLMR()
 {
     int retval;
 
+    // Ensure that the internal buffer is empty.
+    while ( !sorted_events.empty() ){
+        sorted_events.pop();
+    }
+
+    // Ensure that the memory block is set to zero
+    memset(lmdata, 0, sizeof(unsigned int) * EXTERNAL_FIFO_LENGTH);
+
     // First we check if the modules have already been synchronized.
     // if so, we don't need to reset the clocks (could be annoying if there are random offsets each new run!)
     #ifdef CHECK_SYNCH
